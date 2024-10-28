@@ -224,7 +224,7 @@
         basins.forEach(basin => {
             const linkElement = document.getElementById(`link-${basin.toLowerCase().replace(' ', '-')}`);
             if (linkElement) {
-                linkElement.href = `precip.html?basin=${basin}&type=${type}&cda=${cda}`;
+                linkElement.href = `index.html?basin=${basin}&type=${type}&cda=${cda}`;
                 console.log(`${basin} link updated to: ${linkElement.href}`);
             }
         });
