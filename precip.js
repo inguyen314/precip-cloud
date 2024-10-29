@@ -1310,7 +1310,13 @@ function createTablePrecip(combinedData, type, reportNumber) {
 
             // River Mile cell
             const riverMileCell = document.createElement('td');
-            riverMileCell.textContent = location['attribute'];
+            riverMileCell.textContent = location['river-mile']['river_mile_hard_coded'];
+
+            // Set the title for the cell
+            riverMileCell.title = "Hard Coded with Json File";
+
+            // Set halo effect using text-shadow with orange color
+            riverMileCell.style.textShadow = '0 0 2px rgba(255, 165, 0, 0.7), 0 0 2px rgba(255, 140, 0, 0.5)';
             row.appendChild(riverMileCell);
 
             // Location cell with link
