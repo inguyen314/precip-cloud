@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         setLocationCategory = "Basins";
         setLocationGroupOwner = "Precip";
         setTimeseriesGroup1 = "Precip";
-        setLookBackHours = subtractDaysFromDate(new Date(), 12);
+        setLookBackHours = subtractDaysFromDate(new Date(), 5);
     }
 
     // Display the loading indicator for water quality alarm
@@ -380,6 +380,22 @@ document.addEventListener('DOMContentLoaded', async function () {
                                                 return; // Early return if the type is unknown
                                             }
 
+                                            let cumValueKey;
+                                            if (type === 'datman') {
+                                                cumValueKey = 'datman-cum-value';
+                                            } else {
+                                                console.error('Unknown type:', type);
+                                                return; // Early return if the type is unknown
+                                            }
+
+                                            let incValueKey;
+                                            if (type === 'datman') {
+                                                incValueKey = 'datman-inc-value';
+                                            } else {
+                                                console.error('Unknown type:', type);
+                                                return; // Early return if the type is unknown
+                                            }
+
                                             if (!locData[lastValueKey]) {
                                                 locData[lastValueKey] = [];  // Initialize as an array if it doesn't exist
                                             }
@@ -392,6 +408,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                                                 locData[minValueKey] = [];  // Initialize as an array if it doesn't exist
                                             }
 
+                                            if (!locData[cumValueKey]) {
+                                                locData[cumValueKey] = [];  // Initialize as an array if it doesn't exist
+                                            }
+
+                                            if (!locData[incValueKey]) {
+                                                locData[incValueKey] = [];  // Initialize as an array if it doesn't exist
+                                            }
 
                                             // Get and store the last non-null value for the specific tsid
                                             const lastValue = getLastNonNullValue(data, tsid);
@@ -404,6 +427,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                                             const minValue = getMinValue(data, tsid);
                                             // console.log("minValue: ", minValue);
 
+                                            // Get and store the last min value for the specific tsid
+                                            const cumValue = getCumValue(data, tsid);
+                                            // console.log("cumValue: ", cumValue);
+
+                                            // Get and store the last min value for the specific tsid
+                                            const incValue = getIncValue(data, tsid);
+                                            // console.log("incValue: ", incValue);
+
                                             // Push the last non-null value to the corresponding last-value array
                                             locData[lastValueKey].push(lastValue);
 
@@ -412,6 +443,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                                             // Push the last non-null value to the corresponding last-value array
                                             locData[minValueKey].push(minValue);
+
+                                            // Push the last non-null value to the corresponding last-value array
+                                            locData[cumValueKey].push(cumValue);
+
+                                            // Push the last non-null value to the corresponding last-value array
+                                            locData[incValueKey].push(incValue);
                                         })
 
                                         .catch(error => {
@@ -782,6 +819,320 @@ function getMinValue(data, tsid) {
     return minEntry;
 }
 
+function getCumValue(data, tsid) {
+    let value0 = null;  // Recent (0 hours)
+    let value6 = null;  // 6 hours earlier
+    let value12 = null; // 12 hours earlier
+    let value18 = null; // 18 hours earlier
+    let value24 = null; // 24 hours earlier
+    let value30 = null; // 30 hours earlier
+    let value36 = null; // 36 hours earlier
+    let value42 = null; // 42 hours earlier
+    let value48 = null; // 48 hours earlier
+    let value54 = null; // 54 hours earlier
+    let value60 = null; // 60 hours earlier
+    let value66 = null; // 66 hours earlier
+    let value72 = null; // 72 hours earlier
+
+    // Iterate over the values array in reverse
+    for (let i = data.values.length - 1; i >= 0; i--) {
+        const [timestamp, value, qualityCode] = data.values[i];
+
+        // Check if the value at index i is not null
+        if (value !== null) {
+            // Convert timestamp to Date object
+            const currentTimestamp = new Date(timestamp);
+
+            // If value0 hasn't been set, set it to the latest non-null value
+            if (!value0) {
+                value0 = { tsid, timestamp, value, qualityCode };
+            } else {
+                // Calculate target timestamps for each interval
+                const sixHoursEarlier = new Date(value0.timestamp);
+                sixHoursEarlier.setHours(sixHoursEarlier.getHours() - 6);
+
+                const twelveHoursEarlier = new Date(value0.timestamp);
+                twelveHoursEarlier.setHours(twelveHoursEarlier.getHours() - 12);
+
+                const eighteenHoursEarlier = new Date(value0.timestamp);
+                eighteenHoursEarlier.setHours(eighteenHoursEarlier.getHours() - 18);
+
+                const twentyFourHoursEarlier = new Date(value0.timestamp);
+                twentyFourHoursEarlier.setHours(twentyFourHoursEarlier.getHours() - 24);
+
+                const thirtyHoursEarlier = new Date(value0.timestamp);
+                thirtyHoursEarlier.setHours(thirtyHoursEarlier.getHours() - 30);
+
+                const thirtySixHoursEarlier = new Date(value0.timestamp);
+                thirtySixHoursEarlier.setHours(thirtySixHoursEarlier.getHours() - 36);
+
+                const fortyTwoHoursEarlier = new Date(value0.timestamp);
+                fortyTwoHoursEarlier.setHours(fortyTwoHoursEarlier.getHours() - 42);
+
+                const fortyEightHoursEarlier = new Date(value0.timestamp);
+                fortyEightHoursEarlier.setHours(fortyEightHoursEarlier.getHours() - 48);
+
+                const fiftyFourHoursEarlier = new Date(value0.timestamp);
+                fiftyFourHoursEarlier.setHours(fiftyFourHoursEarlier.getHours() - 54);
+
+                const sixtyHoursEarlier = new Date(value0.timestamp);
+                sixtyHoursEarlier.setHours(sixtyHoursEarlier.getHours() - 60);
+
+                const sixtySixHoursEarlier = new Date(value0.timestamp);
+                sixtySixHoursEarlier.setHours(sixtySixHoursEarlier.getHours() - 66);
+
+                const seventyTwoHoursEarlier = new Date(value0.timestamp);
+                seventyTwoHoursEarlier.setHours(seventyTwoHoursEarlier.getHours() - 72);
+
+                // Assign values if the timestamps match
+                if (!value6 && currentTimestamp.getTime() === sixHoursEarlier.getTime()) {
+                    value6 = { tsid, timestamp, value, qualityCode };
+                } else if (!value12 && currentTimestamp.getTime() === twelveHoursEarlier.getTime()) {
+                    value12 = { tsid, timestamp, value, qualityCode };
+                } else if (!value18 && currentTimestamp.getTime() === eighteenHoursEarlier.getTime()) {
+                    value18 = { tsid, timestamp, value, qualityCode };
+                } else if (!value24 && currentTimestamp.getTime() === twentyFourHoursEarlier.getTime()) {
+                    value24 = { tsid, timestamp, value, qualityCode };
+                } else if (!value30 && currentTimestamp.getTime() === thirtyHoursEarlier.getTime()) {
+                    value30 = { tsid, timestamp, value, qualityCode };
+                } else if (!value36 && currentTimestamp.getTime() === thirtySixHoursEarlier.getTime()) {
+                    value36 = { tsid, timestamp, value, qualityCode };
+                } else if (!value42 && currentTimestamp.getTime() === fortyTwoHoursEarlier.getTime()) {
+                    value42 = { tsid, timestamp, value, qualityCode };
+                } else if (!value48 && currentTimestamp.getTime() === fortyEightHoursEarlier.getTime()) {
+                    value48 = { tsid, timestamp, value, qualityCode };
+                } else if (!value54 && currentTimestamp.getTime() === fiftyFourHoursEarlier.getTime()) {
+                    value54 = { tsid, timestamp, value, qualityCode };
+                } else if (!value60 && currentTimestamp.getTime() === sixtyHoursEarlier.getTime()) {
+                    value60 = { tsid, timestamp, value, qualityCode };
+                } else if (!value66 && currentTimestamp.getTime() === sixtySixHoursEarlier.getTime()) {
+                    value66 = { tsid, timestamp, value, qualityCode };
+                } else if (!value72 && currentTimestamp.getTime() === seventyTwoHoursEarlier.getTime()) {
+                    value72 = { tsid, timestamp, value, qualityCode };
+                }
+
+                // Break loop if all values are found
+                if (
+                    value6 &&
+                    value12 &&
+                    value18 &&
+                    value24 &&
+                    value30 &&
+                    value36 &&
+                    value42 &&
+                    value48 &&
+                    value54 &&
+                    value60 &&
+                    value66 &&
+                    value72
+                ) {
+                    break;
+                }
+            }
+        }
+    }
+
+    // Calculate incremental values (valueX - valuePrevious)
+    // const incrementalValues = {
+    //     incremental6: value6 ? value0.value - value6.value : null,
+    //     incremental12: value12 ? value6.value - value12.value : null,
+    //     incremental18: value18 ? value12.value - value18.value : null,
+    //     incremental24: value24 ? value18.value - value24.value : null,
+    //     incremental30: value30 ? value24.value - value30.value : null,
+    //     incremental36: value36 ? value30.value - value36.value : null,
+    //     incremental42: value42 ? value36.value - value42.value : null,
+    //     incremental48: value48 ? value42.value - value48.value : null,
+    //     incremental54: value54 ? value48.value - value54.value : null,
+    //     incremental60: value60 ? value54.value - value60.value : null,
+    //     incremental66: value66 ? value60.value - value66.value : null,
+    //     incremental72: value72 ? value66.value - value72.value : null,
+    // };
+
+    // Calculate cumulative values (value0 - valueX)
+    const cumulativeValues = {
+        cumulative6: value0 && value6 ? value0.value - value6.value : null,
+        cumulative12: value0 && value12 ? value0.value - value12.value : null,
+        cumulative24: value0 && value24 ? value0.value - value24.value : null,
+        cumulative48: value0 && value48 ? value0.value - value48.value : null,
+        cumulative72: value0 && value72 ? value0.value - value72.value : null,
+    };
+
+    return {
+        value0,
+        value6,
+        value12,
+        value18,
+        value24,
+        value30,
+        value36,
+        value42,
+        value48,
+        value54,
+        value60,
+        value66,
+        value72,
+        // ...incrementalValues, // Spread operator to include incremental values in the return object
+        ...cumulativeValues // Spread operator to include cumulative values in the return object
+    };
+}
+
+function getIncValue(data, tsid) {
+    let value0 = null;  // Recent (0 hours)
+    let value6 = null;  // 6 hours earlier
+    let value12 = null; // 12 hours earlier
+    let value18 = null; // 18 hours earlier
+    let value24 = null; // 24 hours earlier
+    let value30 = null; // 30 hours earlier
+    let value36 = null; // 36 hours earlier
+    let value42 = null; // 42 hours earlier
+    let value48 = null; // 48 hours earlier
+    let value54 = null; // 54 hours earlier
+    let value60 = null; // 60 hours earlier
+    let value66 = null; // 66 hours earlier
+    let value72 = null; // 72 hours earlier
+
+    // Iterate over the values array in reverse
+    for (let i = data.values.length - 1; i >= 0; i--) {
+        const [timestamp, value, qualityCode] = data.values[i];
+
+        // Check if the value at index i is not null
+        if (value !== null) {
+            // Convert timestamp to Date object
+            const currentTimestamp = new Date(timestamp);
+
+            // If value0 hasn't been set, set it to the latest non-null value
+            if (!value0) {
+                value0 = { tsid, timestamp, value, qualityCode };
+            } else {
+                // Calculate target timestamps for each interval
+                const sixHoursEarlier = new Date(value0.timestamp);
+                sixHoursEarlier.setHours(sixHoursEarlier.getHours() - 6);
+
+                const twelveHoursEarlier = new Date(value0.timestamp);
+                twelveHoursEarlier.setHours(twelveHoursEarlier.getHours() - 12);
+
+                const eighteenHoursEarlier = new Date(value0.timestamp);
+                eighteenHoursEarlier.setHours(eighteenHoursEarlier.getHours() - 18);
+
+                const twentyFourHoursEarlier = new Date(value0.timestamp);
+                twentyFourHoursEarlier.setHours(twentyFourHoursEarlier.getHours() - 24);
+
+                const thirtyHoursEarlier = new Date(value0.timestamp);
+                thirtyHoursEarlier.setHours(thirtyHoursEarlier.getHours() - 30);
+
+                const thirtySixHoursEarlier = new Date(value0.timestamp);
+                thirtySixHoursEarlier.setHours(thirtySixHoursEarlier.getHours() - 36);
+
+                const fortyTwoHoursEarlier = new Date(value0.timestamp);
+                fortyTwoHoursEarlier.setHours(fortyTwoHoursEarlier.getHours() - 42);
+
+                const fortyEightHoursEarlier = new Date(value0.timestamp);
+                fortyEightHoursEarlier.setHours(fortyEightHoursEarlier.getHours() - 48);
+
+                const fiftyFourHoursEarlier = new Date(value0.timestamp);
+                fiftyFourHoursEarlier.setHours(fiftyFourHoursEarlier.getHours() - 54);
+
+                const sixtyHoursEarlier = new Date(value0.timestamp);
+                sixtyHoursEarlier.setHours(sixtyHoursEarlier.getHours() - 60);
+
+                const sixtySixHoursEarlier = new Date(value0.timestamp);
+                sixtySixHoursEarlier.setHours(sixtySixHoursEarlier.getHours() - 66);
+
+                const seventyTwoHoursEarlier = new Date(value0.timestamp);
+                seventyTwoHoursEarlier.setHours(seventyTwoHoursEarlier.getHours() - 72);
+
+                // Assign values if the timestamps match
+                if (!value6 && currentTimestamp.getTime() === sixHoursEarlier.getTime()) {
+                    value6 = { tsid, timestamp, value, qualityCode };
+                } else if (!value12 && currentTimestamp.getTime() === twelveHoursEarlier.getTime()) {
+                    value12 = { tsid, timestamp, value, qualityCode };
+                } else if (!value18 && currentTimestamp.getTime() === eighteenHoursEarlier.getTime()) {
+                    value18 = { tsid, timestamp, value, qualityCode };
+                } else if (!value24 && currentTimestamp.getTime() === twentyFourHoursEarlier.getTime()) {
+                    value24 = { tsid, timestamp, value, qualityCode };
+                } else if (!value30 && currentTimestamp.getTime() === thirtyHoursEarlier.getTime()) {
+                    value30 = { tsid, timestamp, value, qualityCode };
+                } else if (!value36 && currentTimestamp.getTime() === thirtySixHoursEarlier.getTime()) {
+                    value36 = { tsid, timestamp, value, qualityCode };
+                } else if (!value42 && currentTimestamp.getTime() === fortyTwoHoursEarlier.getTime()) {
+                    value42 = { tsid, timestamp, value, qualityCode };
+                } else if (!value48 && currentTimestamp.getTime() === fortyEightHoursEarlier.getTime()) {
+                    value48 = { tsid, timestamp, value, qualityCode };
+                } else if (!value54 && currentTimestamp.getTime() === fiftyFourHoursEarlier.getTime()) {
+                    value54 = { tsid, timestamp, value, qualityCode };
+                } else if (!value60 && currentTimestamp.getTime() === sixtyHoursEarlier.getTime()) {
+                    value60 = { tsid, timestamp, value, qualityCode };
+                } else if (!value66 && currentTimestamp.getTime() === sixtySixHoursEarlier.getTime()) {
+                    value66 = { tsid, timestamp, value, qualityCode };
+                } else if (!value72 && currentTimestamp.getTime() === seventyTwoHoursEarlier.getTime()) {
+                    value72 = { tsid, timestamp, value, qualityCode };
+                }
+
+                // Break loop if all values are found
+                if (
+                    value6 &&
+                    value12 &&
+                    value18 &&
+                    value24 &&
+                    value30 &&
+                    value36 &&
+                    value42 &&
+                    value48 &&
+                    value54 &&
+                    value60 &&
+                    value66 &&
+                    value72
+                ) {
+                    break;
+                }
+            }
+        }
+    }
+
+    // Calculate incremental values (valueX - valuePrevious)
+    const incrementalValues = {
+        incremental6: value6 ? value0.value - value6.value : null,
+        incremental12: value12 ? value6.value - value12.value : null,
+        incremental18: value18 ? value12.value - value18.value : null,
+        incremental24: value24 ? value18.value - value24.value : null,
+        incremental30: value30 ? value24.value - value30.value : null,
+        incremental36: value36 ? value30.value - value36.value : null,
+        incremental42: value42 ? value36.value - value42.value : null,
+        incremental48: value48 ? value42.value - value48.value : null,
+        incremental54: value54 ? value48.value - value54.value : null,
+        incremental60: value60 ? value54.value - value60.value : null,
+        incremental66: value66 ? value60.value - value66.value : null,
+        incremental72: value72 ? value66.value - value72.value : null,
+    };
+
+    // Calculate cumulative values (value0 - valueX)
+    // const cumulativeValues = {
+    //     cumulative6: value0 && value6 ? value0.value - value6.value : null,
+    //     cumulative12: value0 && value12 ? value0.value - value12.value : null,
+    //     cumulative24: value0 && value24 ? value0.value - value24.value : null,
+    //     cumulative48: value0 && value48 ? value0.value - value48.value : null,
+    //     cumulative72: value0 && value72 ? value0.value - value72.value : null,
+    // };
+
+    return {
+        value0,
+        value6,
+        value12,
+        value18,
+        value24,
+        value30,
+        value36,
+        value42,
+        value48,
+        value54,
+        value60,
+        value66,
+        value72,
+        ...incrementalValues, // Spread operator to include incremental values in the return object
+        // ...cumulativeValues // Spread operator to include cumulative values in the return object
+    };
+}
+
 function hasLastValue(data) {
     let allLocationsValid = true; // Flag to track if all locations are valid
 
@@ -868,22 +1219,9 @@ function hasLastValue(data) {
     }
 }
 
-// Function to filter locations with report_precip === true
-function filterLocations(data) {
-    const filteredData = [];
-    data.forEach(item => {
-        const filteredItem = { basin: item.basin, gages: [] };
-        item.gages.forEach(gage => {
-            if (gage.report_precip === true) {
-                filteredItem.gages.push(gage);
-            }
-        });
-        if (filteredItem.gages.length > 0) { // At least one gage with report_precip === true
-            filteredData.push(filteredItem);
-        }
-    });
-    return filteredData;
-}
+
+
+
 
 // Function to create ld summary table
 function createTable(filteredData) {
