@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const currentDateTime = new Date();
+    console.log("currentDateTime: ", currentDateTime);
 
     let setLocationCategory = null;
     let setLocationGroupOwner = null;
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         setLocationCategory = "Basins";
         setLocationGroupOwner = "Precip";
         setTimeseriesGroup1 = "Precip";
-        setLookBackHours = subtractDaysFromDate(new Date(), 6);
+        setLookBackHours = subtractDaysFromDate(new Date(), 4);
     }
 
     // Display the loading indicator for water quality alarm
@@ -329,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                             const timeSeriesDataFetchPromises = (timeSeries, type) => {
                                 return timeSeries.map((series, index) => {
                                     const tsid = series['timeseries-id'];
-                                    const timeSeriesDataApiUrl = setBaseUrl + `timeseries?name=${tsid}&begin=${setLookBackHours.toISOString()}&end=${currentDateTime.toISOString()}&office=${office}`;
+                                    const timeSeriesDataApiUrl = setBaseUrl + `timeseries?page-size=5000&name=${tsid}&begin=${setLookBackHours.toISOString()}&end=${currentDateTime.toISOString()}&office=${office}`;
                                     // console.log('timeSeriesDataApiUrl:', timeSeriesDataApiUrl);
 
                                     return fetch(timeSeriesDataApiUrl, {
@@ -340,6 +341,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                                     })
                                         .then(res => res.json())
                                         .then(data => {
+
+                                            console.log("data: ", data);
+
                                             if (data.values) {
                                                 data.values.forEach(entry => {
                                                     entry[0] = formatISODate2ReadableDate(entry[0]);
@@ -849,7 +853,7 @@ function getCumValue(data, tsid) {
         if (value !== null) {
             // Convert timestamp to Date object
             const currentTimestamp = new Date(timestamp);
-            console.log("currentTimestamp: ", currentTimestamp);
+            // console.log("currentTimestamp: ", currentTimestamp);
 
             // If value0 hasn't been set, set it to the latest non-null value
             if (!value0) {
