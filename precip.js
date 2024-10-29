@@ -663,6 +663,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     //     container.appendChild(table);
                     // }
 
+                    // Only call createTable if no valid data exists
+                    const table = createTablePrecip(combinedData, type, reportNumber);
+
+                    // Append the table to the specified container
+                    const container = document.getElementById(`table_container_${reportDiv}`);
+                    container.appendChild(table);
+
                     loadingIndicator.style.display = 'none';
                 })
                 .catch(error => {
@@ -1219,9 +1226,45 @@ function hasLastValue(data) {
     }
 }
 
+// Function to create ld summary table
+function createTablePrecip(combinedData, type, reportNumber) {
+    // Create a table element
+    const table = document.createElement('table');
+    table.setAttribute('id', 'gage_data'); // Set the id to "gage_data"
 
+    // Create a table header row
+    const headerRow = document.createElement('tr');
 
+    if (type === "inc") {
+        // Create table headers for the desired columns
+        const columns = ["River Mile", "Location", "06 hr.", "12 hr.", "18 hr.", "24 hr.", "30 hr.", "36 hr.", "42 hr.", "48 hr.", "54 hr.", "60 hr.", "66 hr.", "72 hr.", "Zero hr."];
+        columns.forEach((columnName) => {
+            const th = document.createElement('th');
+            th.textContent = columnName;
+            th.style.height = '50px';
+            th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
+            headerRow.appendChild(th);
+        });
+    } else if (type === "cum") {
+        // Create table headers for the desired columns
+        const columns = ["River Mile", "Location", "06 hr.", "12 hr.", "24 hr.", "48 hr.", "72 hr.", "Zero hr."];
+        columns.forEach((columnName) => {
+            const th = document.createElement('th');
+            th.textContent = columnName;
+            th.style.height = '50px';
+            th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
+            headerRow.appendChild(th);
+        });
+    }
 
+    // Append the header row to the table
+    table.appendChild(headerRow);
+
+    // You may want to call `populateTableCells` here to populate data
+    // populateTableCells(combinedData, table);
+
+    return table; // Make sure to return the table element
+}
 
 // Function to create ld summary table
 function createTable(filteredData) {
