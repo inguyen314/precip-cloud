@@ -1,13 +1,7 @@
 <script>
     // Create a URL object with the current page URL
     const urlParams = new URLSearchParams(window.location.search);
-
-    // Get the value of a specific parameter
-    const param1Value = urlParams.get('basin');
-    const param2Value = urlParams.get('type');
-    const param3Value = urlParams.get('cda');
-    const param4Value = urlParams.get('office');
-
+    
     urlParams.forEach(function (value, key) {
         console.log(key, value);
     });
@@ -205,9 +199,9 @@
         // Update the Title
         let title;
         if (type === 'inc') {
-            title = `Realtime Cloud Precip Incremental ${basin}`;
+            title = `Realtime Precip Incremental ${basin}`;
         } else if (type === 'cum') {
-            title = `Realtime Cloud Precip Cumulative ${basin}`;
+            title = `Realtime Precip Cumulative ${basin}`;
         }
 
         if (title) {
