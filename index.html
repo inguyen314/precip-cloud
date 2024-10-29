@@ -205,9 +205,9 @@
         // Update the Title
         let title;
         if (type === 'inc') {
-            title = `Realtime Precip Incremental ${basin}`;
+            title = `Realtime Cloud Precip Incremental ${basin}`;
         } else if (type === 'cum') {
-            title = `Realtime Precip Cumulative ${basin}`;
+            title = `Realtime Cloud Precip Cumulative ${basin}`;
         }
 
         if (title) {
@@ -224,8 +224,8 @@
         basins.forEach(basin => {
             const linkElement = document.getElementById(`link-${basin.toLowerCase().replace(' ', '-')}`);
             if (linkElement) {
-                linkElement.href = `index.html?basin=${basin}&type=${type}&cda=${cda}`;
-                console.log(`${basin} link updated to: ${linkElement.href}`);
+                linkElement.href = `index.html?office=${office}&basin=${basin}&type=${type}&cda=${cda}`;
+                // console.log(`${basin} link updated to: ${linkElement.href}`);
             }
         });
     });
