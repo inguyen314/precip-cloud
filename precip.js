@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         setLocationCategory = "Basins";
         setLocationGroupOwner = "Precip";
         setTimeseriesGroup1 = "Precip";
-        setLookBackHours = subtractDaysFromDate(new Date(), 5);
+        setLookBackHours = subtractDaysFromDate(new Date(), 6);
     }
 
     // Display the loading indicator for water quality alarm
@@ -1226,7 +1226,6 @@ function hasLastValue(data) {
     }
 }
 
-// Function to create ld summary table
 function createTablePrecip(combinedData, type, reportNumber) {
     // Create a table element
     const table = document.createElement('table');
@@ -1234,36 +1233,83 @@ function createTablePrecip(combinedData, type, reportNumber) {
 
     // Create a table header row
     const headerRow = document.createElement('tr');
+    let columns;
 
     if (type === "inc") {
-        // Create table headers for the desired columns
-        const columns = ["River Mile", "Location", "06 hr.", "12 hr.", "18 hr.", "24 hr.", "30 hr.", "36 hr.", "42 hr.", "48 hr.", "54 hr.", "60 hr.", "66 hr.", "72 hr.", "Zero hr."];
-        columns.forEach((columnName) => {
-            const th = document.createElement('th');
-            th.textContent = columnName;
-            th.style.height = '50px';
-            th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
-            headerRow.appendChild(th);
-        });
+        // Columns for incremental values
+        columns = ["River Mile", "Location", "06 hr.", "12 hr.", "18 hr.", "24 hr.", "30 hr.", "36 hr.", "42 hr.", "48 hr.", "54 hr.", "60 hr.", "66 hr.", "72 hr.", "Zero hr."];
     } else if (type === "cum") {
-        // Create table headers for the desired columns
-        const columns = ["River Mile", "Location", "06 hr.", "12 hr.", "24 hr.", "48 hr.", "72 hr.", "Zero hr."];
-        columns.forEach((columnName) => {
-            const th = document.createElement('th');
-            th.textContent = columnName;
-            th.style.height = '50px';
-            th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
-            headerRow.appendChild(th);
-        });
+        // Columns for cumulative values
+        columns = ["River Mile", "Location", "06 hr.", "12 hr.", "24 hr.", "48 hr.", "72 hr.", "Zero hr."];
     }
 
-    // Append the header row to the table
+    // Append header columns
+    columns.forEach((columnName) => {
+        const th = document.createElement('th');
+        th.textContent = columnName;
+        th.style.height = '50px';
+        th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
+        headerRow.appendChild(th);
+    });
     table.appendChild(headerRow);
 
-    // You may want to call `populateTableCells` here to populate data
-    // populateTableCells(combinedData, table);
+    // Populate rows for each location
+    combinedData.forEach((basin) => {
+        basin['assigned-locations'].forEach((location) => {
+            const row = document.createElement('tr');
 
-    return table; // Make sure to return the table element
+            // Add river mile and location name cells
+            const riverMileCell = document.createElement('td');
+            riverMileCell.textContent = location['attribute']; // Assuming 'attribute' is the river mile
+            row.appendChild(riverMileCell);
+
+            const locationCell = document.createElement('td');
+            locationCell.textContent = location['location-id'];
+            row.appendChild(locationCell);
+
+            // Use the appropriate dataset based on `type`
+            let dataValues;
+            if (type === "inc") {
+                dataValues = location['datman-inc-value'][0]; // Get the first inc value object
+                // Loop over specified incremental hours for "inc" type
+                ["incremental6", "incremental12", "incremental18", "incremental24", "incremental30", "incremental36", "incremental42", "incremental48", "incremental54", "incremental60", "incremental66", "incremental72"].forEach((timeKey) => {
+                    const cell = document.createElement('td');
+                    const value = dataValues[timeKey] !== undefined && dataValues[timeKey] !== null 
+                        ? Number(dataValues[timeKey].value).toFixed(2) 
+                        : 'N/A';
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                // Extract and append the timestamp from value0
+                const zeroHourCell = document.createElement('td');
+                zeroHourCell.textContent = dataValues.value0 ? dataValues.value0.timestamp : 'N/A';
+                row.appendChild(zeroHourCell);
+
+            } else if (type === "cum") {
+                dataValues = location['datman-cum-value'][0]; // Get the first cum value object
+                // Loop over specified cumulative hours for "cum" type
+                ["cumulative6", "cumulative12", "cumulative24", "cumulative48", "cumulative72"].forEach((timeKey) => {
+                    const cell = document.createElement('td');
+                    const value = dataValues[timeKey] !== undefined && dataValues[timeKey] !== null 
+                        ? Number(dataValues[timeKey]).toFixed(2) 
+                        : 'N/A';
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                // Extract and append the timestamp from value0
+                const zeroHourCell = document.createElement('td');
+                zeroHourCell.textContent = dataValues.value0 ? dataValues.value0.timestamp : 'N/A';
+                row.appendChild(zeroHourCell);
+            }
+
+            // Append row to table
+            table.appendChild(row);
+        });
+    });
+
+    return table; // Return the populated table element
 }
 
 // Function to create ld summary table
