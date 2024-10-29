@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                                         .then(res => res.json())
                                         .then(data => {
 
-                                            console.log("data: ", data);
+                                            // console.log("data: ", data);
 
                                             if (data.values) {
                                                 data.values.forEach(entry => {
@@ -1232,87 +1232,124 @@ function hasLastValue(data) {
 }
 
 function createTablePrecip(combinedData, type, reportNumber) {
-    // Create a table element
     const table = document.createElement('table');
-    table.setAttribute('id', 'gage_data'); // Set the id to "gage_data"
+    table.setAttribute('id', 'gage_data');
 
-    // Create a table header row
     const headerRow = document.createElement('tr');
     let columns;
 
+    // Set columns based on type
     if (type === "inc") {
-        // Columns for incremental values
         columns = ["River Mile", "Location", "06 hr.", "12 hr.", "18 hr.", "24 hr.", "30 hr.", "36 hr.", "42 hr.", "48 hr.", "54 hr.", "60 hr.", "66 hr.", "72 hr.", "Zero hr."];
     } else if (type === "cum") {
-        // Columns for cumulative values
         columns = ["River Mile", "Location", "06 hr.", "12 hr.", "24 hr.", "48 hr.", "72 hr.", "Zero hr."];
     }
 
-    // Append header columns
+    // Create header cells
     columns.forEach((columnName) => {
         const th = document.createElement('th');
         th.textContent = columnName;
         th.style.height = '50px';
-        th.style.backgroundColor = 'darkblue'; // Set background color to dark blue
+        th.style.backgroundColor = 'darkblue';
+        th.style.color = 'white'; // Added for better visibility
         headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
 
-    // Populate rows for each location
+    // Populate table rows with data
     combinedData.forEach((basin) => {
         basin['assigned-locations'].forEach((location) => {
             const row = document.createElement('tr');
 
-            // Add river mile cell
+            // River Mile cell
             const riverMileCell = document.createElement('td');
-            riverMileCell.textContent = location['attribute']; // Assuming 'attribute' is the river mile
+            riverMileCell.textContent = location['attribute'];
             row.appendChild(riverMileCell);
 
-            // Add location link cell
-            const locationCell = document.createElement('td');
-            const value0 = location['datman-inc-value'][0]?.value0; // Get value0 object
-            const tsid = value0 ? value0.tsid : ''; // Extract tsid for the link
+            // Location cell with link
+            const value0 = location['datman-inc-value'][0]?.value0;
+            const tsid = value0 ? value0.tsid : '';
             const link = `https://wm.mvs.ds.usace.army.mil/district_templates/chart/index.html?office=MVS&cwms_ts_id=${tsid}&cda=internal`;
-
+            const locationCell = document.createElement('td');
             const linkElement = document.createElement('a');
             linkElement.href = link;
-            linkElement.target = '_blank'; // Open link in a new tab
-            linkElement.textContent = location['location-id']; // Set link text to location id
+            linkElement.target = '_blank';
+            linkElement.textContent = location['location-id'];
             locationCell.appendChild(linkElement);
             row.appendChild(locationCell);
 
-            // Use the appropriate dataset based on `type`
             let dataValues;
             if (type === "inc") {
-                dataValues = location['datman-inc-value'][0]; // Get the first inc value object
-                // Loop over specified incremental hours for "inc" type
-                ["incremental6", "incremental12", "incremental18", "incremental24", "incremental30", "incremental36", "incremental42", "incremental48", "incremental54", "incremental60", "incremental66", "incremental72"].forEach((timeKey) => {
+                dataValues = location['datman-inc-value'][0];
+
+                // Handle incremental values
+                const valueKeys = ["incremental6", "incremental12", "incremental18", "incremental24", "incremental30", "incremental36", "incremental42", "incremental48", "incremental54", "incremental60", "incremental66", "incremental72"];
+                valueKeys.forEach((timeKey) => {
                     const cell = document.createElement('td');
-                    const value = dataValues[timeKey] !== undefined && dataValues[timeKey] !== null 
-                        ? Number(dataValues[timeKey].value).toFixed(2) 
-                        : 'N/A';
-                    cell.textContent = value;
+                    const value = dataValues[timeKey];
+                    const numericValue = (value !== undefined && value !== null) ? Number(value) : NaN; // Convert to number
+
+                    // Set cell text
+                    cell.textContent = !isNaN(numericValue) ? numericValue.toFixed(2) : 'N/A';
+
+                    // Set background color based on value conditions
+                    if (!isNaN(numericValue)) {
+                        if (numericValue > 2.00 || numericValue < 0.00) {
+                            cell.style.backgroundColor = 'red';
+                        } else if (numericValue === 0.00) {
+                            cell.style.backgroundColor = 'white';
+                        } else if (numericValue > 0.00 && numericValue <= 0.25) {
+                            cell.style.backgroundColor = 'limegreen';
+                        } else if (numericValue > 0.25 && numericValue <= 0.50) {
+                            cell.style.backgroundColor = 'sandybrown';
+                        } else if (numericValue > 0.50 && numericValue <= 1.00) {
+                            cell.style.backgroundColor = 'gold';
+                        } else if (numericValue > 1.00 && numericValue <= 2.00) {
+                            cell.style.backgroundColor = 'orange';
+                        } else {
+                            cell.style.backgroundColor = 'purple';
+                        }
+                    }
+
                     row.appendChild(cell);
                 });
 
-                // Extract and append the timestamp from value0
+                // Zero hour cell
                 const zeroHourCell = document.createElement('td');
                 zeroHourCell.textContent = dataValues.value0 ? dataValues.value0.timestamp : 'N/A';
                 row.appendChild(zeroHourCell);
 
             } else if (type === "cum") {
-                dataValues = location['datman-cum-value'][0]; // Get the first cum value object
-                // Loop over specified cumulative hours for "cum" type
+                dataValues = location['datman-cum-value'][0];
                 ["cumulative6", "cumulative12", "cumulative24", "cumulative48", "cumulative72"].forEach((timeKey) => {
                     const cell = document.createElement('td');
-                    const value = dataValues[timeKey] !== undefined && dataValues[timeKey] !== null 
-                        ? Number(dataValues[timeKey]).toFixed(2) 
-                        : 'N/A';
-                    cell.textContent = value;
+                    const value = dataValues[timeKey];
+                    const numericValue = (value !== undefined && value !== null) ? Number(value) : NaN; // Convert to number
+                    cell.textContent = !isNaN(numericValue) ? numericValue.toFixed(2) : 'N/A';
+
+                    // Set background color based on value conditions
+                    if (!isNaN(numericValue)) {
+                        if (numericValue > 2.00 || numericValue < 0.00) {
+                            cell.style.backgroundColor = 'red';
+                        } else if (numericValue === 0.00) {
+                            cell.style.backgroundColor = 'white';
+                        } else if (numericValue > 0.00 && numericValue <= 0.25) {
+                            cell.style.backgroundColor = 'limegreen';
+                        } else if (numericValue > 0.25 && numericValue <= 0.50) {
+                            cell.style.backgroundColor = 'sandybrown';
+                        } else if (numericValue > 0.50 && numericValue <= 1.00) {
+                            cell.style.backgroundColor = 'gold';
+                        } else if (numericValue > 1.00 && numericValue <= 2.00) {
+                            cell.style.backgroundColor = 'orange';
+                        } else {
+                            cell.style.backgroundColor = 'purple';
+                        }
+                    }
+
                     row.appendChild(cell);
                 });
 
-                // Extract and append the timestamp from value0
+                // Zero hour cell
                 const zeroHourCell = document.createElement('td');
                 zeroHourCell.textContent = dataValues.value0 ? dataValues.value0.timestamp : 'N/A';
                 row.appendChild(zeroHourCell);
@@ -1323,7 +1360,7 @@ function createTablePrecip(combinedData, type, reportNumber) {
         });
     });
 
-    return table; // Return the populated table element
+    return table;
 }
 
 // Function to create ld summary table
