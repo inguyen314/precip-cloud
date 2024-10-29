@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const lwrpMap = new Map();
     const ownerMap = new Map();
     const tsidDatmanMap = new Map();
+    const riverMileMap = new Map();
 
     // Initialize arrays for storing promises
     const metadataPromises = [];
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const lwrpPromises = [];
     const ownerPromises = [];
     const datmanTsidPromises = [];
+    const riverMilePromises = [];
 
     // Fetch location group data from the API
     fetch(categoryApiUrl)
@@ -121,6 +123,46 @@ document.addEventListener('DOMContentLoaded', async function () {
                             // If assigned locations exist, fetch metadata and time-series data
                             if (getBasin['assigned-locations']) {
                                 getBasin['assigned-locations'].forEach(loc => {
+
+                                    if ("river-mile" === "river-mile") {
+                                        // Fetch the JSON file
+                                        fetch('json/gage_control_official.json')
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(riverMilesJson => {
+                                                // Loop through each basin in the JSON
+                                                for (const basin in riverMilesJson) {
+                                                    const locations = riverMilesJson[basin];
+
+                                                    for (const loc in locations) {
+                                                        const ownerData = locations[loc];
+                                                        console.log("ownerData: ", ownerData);
+
+                                                        // Retrieve river mile and other data
+                                                        const riverMile = ownerData.river_mile_hard_coded;
+
+                                                        // Create an output object using the location name as ID
+                                                        const outputData = {
+                                                            locationId: loc, // Using location name as ID
+                                                            basin: basin,
+                                                            riverMile: riverMile
+                                                        };
+
+                                                        // console.log("Output Data:", outputData);
+                                                        riverMileMap.set(loc, ownerData); // Store the data in the map
+                                                    }
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Problem with the fetch operation:', error);
+                                            });
+                                    }
+
+
                                     // console.log(loc['location-id']);
 
                                     // // Fetch metadata for each location
@@ -293,6 +335,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                                 // const lwrpMapData = lwrpMap.get(loc['location-id']);
                                 // loc['lwrp'] = lwrpMapData !== undefined ? lwrpMapData : null;
 
+
+                                const riverMileMapData = riverMileMap.get(loc['location-id']);
+                                if (riverMileMapData) {
+                                    loc['river-mile'] = riverMileMapData;
+                                }
 
                                 // Add owner to json
                                 const ownerMapData = ownerMap.get(loc['location-id']);
