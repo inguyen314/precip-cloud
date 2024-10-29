@@ -849,6 +849,7 @@ function getCumValue(data, tsid) {
         if (value !== null) {
             // Convert timestamp to Date object
             const currentTimestamp = new Date(timestamp);
+            console.log("currentTimestamp: ", currentTimestamp);
 
             // If value0 hasn't been set, set it to the latest non-null value
             if (!value0) {
@@ -1258,13 +1259,22 @@ function createTablePrecip(combinedData, type, reportNumber) {
         basin['assigned-locations'].forEach((location) => {
             const row = document.createElement('tr');
 
-            // Add river mile and location name cells
+            // Add river mile cell
             const riverMileCell = document.createElement('td');
             riverMileCell.textContent = location['attribute']; // Assuming 'attribute' is the river mile
             row.appendChild(riverMileCell);
 
+            // Add location link cell
             const locationCell = document.createElement('td');
-            locationCell.textContent = location['location-id'];
+            const value0 = location['datman-inc-value'][0]?.value0; // Get value0 object
+            const tsid = value0 ? value0.tsid : ''; // Extract tsid for the link
+            const link = `https://wm.mvs.ds.usace.army.mil/district_templates/chart/index.html?office=MVS&cwms_ts_id=${tsid}&cda=internal`;
+
+            const linkElement = document.createElement('a');
+            linkElement.href = link;
+            linkElement.target = '_blank'; // Open link in a new tab
+            linkElement.textContent = location['location-id']; // Set link text to location id
+            locationCell.appendChild(linkElement);
             row.appendChild(locationCell);
 
             // Use the appropriate dataset based on `type`
