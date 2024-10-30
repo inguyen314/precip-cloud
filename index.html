@@ -166,14 +166,19 @@
 
                                                 let basinsOrder = null;
                                                 if (office === "MVS") {
-                                                    basinsOrder = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'Castor', 'St Francis'];
+                                                    basinsOrder = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'St Francis'];
                                                 }
 
-                                                // Create a lookup object
+                                                const removeBasins = ['Castor'];
+
+                                                // Filter out basins that should be removed
+                                                const filteredBasins = basins.filter(basin => !removeBasins.includes(basin));
+
+                                                // Create a lookup object for sorting
                                                 const orderMap = Object.fromEntries(basinsOrder.map((basin, index) => [basin, index]));
 
                                                 // Sort basins based on the order in basinsOrder
-                                                const sortedBasins = basins.sort((a, b) => orderMap[a] - orderMap[b]);
+                                                const sortedBasins = filteredBasins.sort((a, b) => orderMap[a] - orderMap[b]);
 
                                                 console.log("sortedBasins: ", sortedBasins);
 

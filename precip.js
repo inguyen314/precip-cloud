@@ -126,40 +126,42 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                                     if ("river-mile" === "river-mile") {
                                         // Fetch the JSON file
-                                        fetch('json/gage_control_official.json')
-                                            .then(response => {
-                                                if (!response.ok) {
-                                                    throw new Error(`Network response was not ok: ${response.statusText}`);
-                                                }
-                                                return response.json();
-                                            })
-                                            .then(riverMilesJson => {
-                                                // Loop through each basin in the JSON
-                                                for (const basin in riverMilesJson) {
-                                                    const locations = riverMilesJson[basin];
-
-                                                    for (const loc in locations) {
-                                                        const ownerData = locations[loc];
-                                                        // console.log("ownerData: ", ownerData);
-
-                                                        // Retrieve river mile and other data
-                                                        const riverMile = ownerData.river_mile_hard_coded;
-
-                                                        // Create an output object using the location name as ID
-                                                        const outputData = {
-                                                            locationId: loc, // Using location name as ID
-                                                            basin: basin,
-                                                            riverMile: riverMile
-                                                        };
-
-                                                        // console.log("Output Data:", outputData);
-                                                        riverMileMap.set(loc, ownerData); // Store the data in the map
+                                        riverMilePromises.push(
+                                            fetch('json/gage_control_official.json')
+                                                .then(response => {
+                                                    if (!response.ok) {
+                                                        throw new Error(`Network response was not ok: ${response.statusText}`);
                                                     }
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error('Problem with the fetch operation:', error);
-                                            });
+                                                    return response.json();
+                                                })
+                                                .then(riverMilesJson => {
+                                                    // Loop through each basin in the JSON
+                                                    for (const basin in riverMilesJson) {
+                                                        const locations = riverMilesJson[basin];
+
+                                                        for (const loc in locations) {
+                                                            const ownerData = locations[loc];
+                                                            // console.log("ownerData: ", ownerData);
+
+                                                            // Retrieve river mile and other data
+                                                            const riverMile = ownerData.river_mile_hard_coded;
+
+                                                            // Create an output object using the location name as ID
+                                                            const outputData = {
+                                                                locationId: loc, // Using location name as ID
+                                                                basin: basin,
+                                                                riverMile: riverMile
+                                                            };
+
+                                                            // console.log("Output Data:", outputData);
+                                                            riverMileMap.set(loc, ownerData); // Store the data in the map
+                                                        }
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Problem with the fetch operation:', error);
+                                                })
+                                        )
                                     }
 
 
@@ -313,6 +315,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // .then(() => Promise.all(lwrpPromises))
                 .then(() => Promise.all(ownerPromises))
                 .then(() => Promise.all(datmanTsidPromises))
+                .then(() => Promise.all(riverMilePromises))
                 .then(() => {
                     combinedData.forEach(basinData => {
                         if (basinData['assigned-locations']) {
