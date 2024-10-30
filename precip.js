@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                                                     for (const loc in locations) {
                                                         const ownerData = locations[loc];
-                                                        console.log("ownerData: ", ownerData);
+                                                        // console.log("ownerData: ", ownerData);
 
                                                         // Retrieve river mile and other data
                                                         const riverMile = ownerData.river_mile_hard_coded;
@@ -1308,9 +1308,10 @@ function createTablePrecip(combinedData, type, reportNumber) {
         basin['assigned-locations'].forEach((location) => {
             const row = document.createElement('tr');
 
-            // River Mile cell
             const riverMileCell = document.createElement('td');
-            riverMileCell.textContent = parseFloat((location['river-mile']['river_mile_hard_coded'])).toFixed(1);
+            const riverMileValue = location['river-mile'] && location['river-mile']['river_mile_hard_coded'];
+            riverMileCell.textContent = riverMileValue != null ? parseFloat(riverMileValue).toFixed(1) : "N/A";
+
 
             // Set the title for the cell
             riverMileCell.title = "Hard Coded with Json File";

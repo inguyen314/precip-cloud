@@ -146,3 +146,25 @@ hr {
 	color: red; 
 	border-color: #000000
 }
+/*** ===================================================================================== ***/
+/*** BASIN SELECTOR ***/
+/*** ===================================================================================== ***/
+#basins {
+    border-collapse: collapse;
+    width: 100%;
+}
+#basins th {
+    padding-top: 30px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+#basins td {
+	text-decoration: none;
+}
+#basins td a, #basins th a {
+	color: black;
+	text-decoration: none;
+}
+#basins td a:hover, #basins th a:hover {
+	text-decoration: underline;
+}

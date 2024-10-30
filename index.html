@@ -1,7 +1,7 @@
 <script>
     // Create a URL object with the current page URL
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     urlParams.forEach(function (value, key) {
         console.log(key, value);
     });
@@ -97,48 +97,126 @@
                                         document.getElementById("legend").appendChild(table);
                                     </script>
 
-                                    <!-- BASIN LINKS -->
-                                    <table id="precip_title">
-                                        <tr>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                            <td>
-                                                <p><strong><a id="link-mississippi" href="#">Mississippi</a></strong>
-                                                </p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-ohio" href="#">Ohio</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-salt" href="#">Salt</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-cuivre" href="#">Cuivre</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-illinois" href="#">Illinois</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-missouri" href="#">Missouri</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-meramec" href="#">Meramec</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-kaskaskia" href="#">Kaskaskia</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-big-muddy" href="#">Big Muddy</a></strong></p>
-                                            </td>
-                                            <td>
-                                                <p><strong><a id="link-st-francis" href="#">St Francis</a></strong></p>
-                                            </td>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                        </tr>
-                                    </table>
+                                    <!-- Basin Selection -->
+                                    <div id="container"></div>
+                                    <script>
+                                        // Create table element
+                                        var table = document.createElement('table');
+                                        table.id = 'basins';
+
+                                        // Create tbody element
+                                        var tbody = document.createElement('tbody');
+                                        table.appendChild(tbody);
+
+                                        // Create tr element
+                                        var tr = document.createElement('tr');
+                                        tbody.appendChild(tr);
+
+                                        // Create th elements
+                                        for (var i = 0; i < 3; i++) {
+                                            var th = document.createElement('th');
+                                            th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                                            tr.appendChild(th);
+                                        }
+
+                                        let basins = null;
+
+                                        let apiUrl = null;
+                                        if (cda === "internal") {
+                                            apiUrl = `https://coe-${office.toLocaleLowerCase()}uwa04${office.toLocaleLowerCase()}.${office.toLocaleLowerCase()}.usace.army.mil:8243/${office.toLocaleLowerCase()}-data/location/group?office=${office}&include-assigned=false&location-category-like=Basins`;
+                                        } else if (cda === "public") {
+                                            apiUrl = `https://cwms-data.usace.army.mil/cwms-data/location/group?office=${office}&include-assigned=false&location-category-like=Basins`;
+                                        }
+                                        fetch(apiUrl)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (!Array.isArray(data) || data.length === 0) {
+                                                    console.warn('No data available from the initial fetch.');
+                                                    return;
+                                                }
+
+                                                console.log('Data fetched:', data);
+
+                                                const targetCategory = { "office-id": office, "id": "Basins" };
+
+                                                function filterByLocationCategory(array, category) {
+                                                    return array.filter(item =>
+                                                        item['location-category'] &&
+                                                        item['location-category']['office-id'] === category['office-id'] &&
+                                                        item['location-category']['id'] === category['id']
+                                                    );
+                                                }
+
+                                                const filteredArray = filterByLocationCategory(data, targetCategory);
+                                                console.log(filteredArray);
+
+                                                // Extract the "id" values from each object
+                                                basins = filteredArray.map(item => item.id);
+                                                if (basins.length === 0) {
+                                                    console.warn('No basins found for the given category.');
+                                                    return;
+                                                }
+
+                                                console.log("basins: ", basins);
+
+                                                let basinsOrder = null;
+                                                if (office === "MVS") {
+                                                    basinsOrder = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'Castor', 'St Francis'];
+                                                }
+
+                                                // Create a lookup object
+                                                const orderMap = Object.fromEntries(basinsOrder.map((basin, index) => [basin, index]));
+
+                                                // Sort basins based on the order in basinsOrder
+                                                const sortedBasins = basins.sort((a, b) => orderMap[a] - orderMap[b]);
+
+                                                console.log("sortedBasins: ", sortedBasins);
+
+                                                basins = sortedBasins;
+
+                                                if (cda === "public") {
+                                                    for (var i = 0; i < basins.length; i++) {
+                                                        var th = document.createElement('th');
+                                                        var link = document.createElement('a');
+                                                        link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=public";
+                                                        link.innerHTML = '<strong>' + basins[i] + '</strong>';
+                                                        var p = document.createElement('p');
+                                                        p.appendChild(link);
+                                                        th.appendChild(p);
+                                                        tr.appendChild(th);
+                                                    }
+                                                } else if (cda === "internal") {
+                                                    for (var i = 0; i < basins.length; i++) {
+                                                        var th = document.createElement('th');
+                                                        var link = document.createElement('a');
+                                                        link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=internal";
+                                                        link.innerHTML = '<strong>' + basins[i] + '</strong>';
+                                                        var p = document.createElement('p');
+                                                        p.appendChild(link);
+                                                        th.appendChild(p);
+                                                        tr.appendChild(th);
+                                                    }
+                                                } else {
+
+                                                }
+
+
+                                                // Create th elements for remaining spaces
+                                                for (var i = 0; i < 2; i++) {
+                                                    var th = document.createElement('th');
+                                                    th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                                                    tr.appendChild(th);
+                                                }
+
+                                                // Append table to the container div<strong>May 2024 - Version V2.1</strong> - gage_control3.json was used <br> 
+                                                document.getElementById('container').appendChild(table);
+                                            });
+                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -211,16 +289,5 @@
                 titleSpan.textContent = title;
             }
         }
-
-        // Update the links
-        const basins = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'St Francis'];
-
-        basins.forEach(basin => {
-            const linkElement = document.getElementById(`link-${basin.toLowerCase().replace(' ', '-')}`);
-            if (linkElement) {
-                linkElement.href = `index.html?office=${office}&basin=${basin}&type=${type}&cda=${cda}`;
-                // console.log(`${basin} link updated to: ${linkElement.href}`);
-            }
-        });
     });
 </script>
