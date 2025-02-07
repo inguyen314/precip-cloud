@@ -235,8 +235,9 @@
                     </div>
                 </div>
                 <!-- Start Precip Div -->
-                <div id="loading_precip" style="display: none;"><img src="images/loading4.gif"
-                        style='height: 50px; width: 50px;' alt="Loading..." /></div>
+                <div id="loading_precip" style="display: none; align-items: center; text-align: center; padding-bottom: 100px;">
+                    <img src="images/loading4.gif" style='height: 50px; width: 50px;' alt="Loading..." />
+                </div>
                 <div id="table_container_precip"></div>
                 <script src="precip.js"></script>
                 <!-- End Precip Div -->
@@ -289,9 +290,9 @@
         // Update the Title
         let title;
         if (type === 'inc') {
-            title = `${office} - Realtime Precip Incremental - ${basin}`;
+            title = `${office} Realtime Precip Incremental - ${basin}`;
         } else if (type === 'cum') {
-            title = `${office} - Realtime Precip Cumulative - ${basin}`;
+            title = `${office} Realtime Precip Cumulative - ${basin}`;
         }
 
         if (title) {
