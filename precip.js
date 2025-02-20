@@ -1360,7 +1360,7 @@ function createTablePrecip(combinedData, type, reportNumber) {
             // Location cell with link
             const value0 = location['datman-inc-value'][0]?.value0;
             const tsid = value0 ? value0.tsid : '';
-            const link = `https://wm.mvs.ds.usace.army.mil/district_templates/chart/index.html?office=MVS&cwms_ts_id=${tsid}&cda=internal&lookback=7`;
+            const link = `../chart/index.html?office=MVS&cwms_ts_id=${tsid}&cda=internal&lookback=7`;
             const locationCell = document.createElement('td');
             const linkElement = document.createElement('a');
             linkElement.href = link;
