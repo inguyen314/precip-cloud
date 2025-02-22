@@ -6,12 +6,32 @@
         console.log(key, value);
     });
 
+    var office = urlParams.get('office') || 'MVS';
+    console.log('office: ', office);
+
+    // Get the value of a specific parameter
+    var cda = urlParams.get('cda');
+    console.log('cda: ', cda);
+
     // Calculate the document root
     const documentRoot = window.location.protocol + "//" + window.location.host + "/";
+    console.log("documentRoot: ", documentRoot);
 
     // Determine the default value of cda based on documentRoot
-    const cdaDefault = (documentRoot === `https://wm.${office}.ds.usace.army.mil/`) ? "internal" : "public";
+    let cdaDefault = null;
+    if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/` || `http://localhost:5173/` || `https://wm.rsgis.dev/` || `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+        cdaDefault = "internal";
+    } else if (documentRoot === `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+        cdaDefault = "internal-coop";
+    } else {
+        cdaDefault = "public";
+    }
     console.log("cdaDefault: ", cdaDefault);
+
+    if (cda === null) {
+        cda = cdaDefault;
+    }
+    console.log("cda: ", cda);
 
     var selectedBasin = urlParams.get('basin');
     console.log('selectedBasin: ', selectedBasin);
@@ -21,12 +41,6 @@
 
     var type = urlParams.get('type');
     console.log('type: ', type);
-
-    var cda = urlParams.get('cda') || cdaDefault;
-    console.log('cda: ', cda);
-
-    var office = urlParams.get('office') || 'MVS';
-    console.log('office: ', office);
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,18 +52,15 @@
     <title></title>
     <meta name="Description" content="U.S. Army Corps of Engineers St. Louis District Home Page" />
     <link rel="stylesheet" href="css/body.css" />
-    <link rel="stylesheet" href="css/precip.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/breadcrumbs.css" />
     <link rel="stylesheet" href="css/jumpMenu.css" />
-    <script type="text/javascript" src="js/main.js"></script>
-    <!-- Add sidebar.css IF NOT LOAD SIDEBAR TEMPLATE -->
     <link rel="stylesheet" href="css/sidebar.css" />
-    <!-- Include Moment.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <!-- Include the Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Include the Moment.js adapter for Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+    <script src="js/main.js"></script>
+    <script src="js/libraries/moment.min.js"></script>
+    <script src="js/libraries/moment-timezone-with-data.js"></script>
+    <script src="js/libraries/chart.js"></script>
+    <script src="js/libraries/chartjs-adapter-moment.min.js"></script>
 </head>
 
 <body>
@@ -235,11 +246,12 @@
                     </div>
                 </div>
                 <!-- Start Precip Div -->
-                <div id="loading_precip" style="display: none; align-items: center; text-align: center; padding-bottom: 100px;">
+                <div id="loading_precip"
+                    style="display: none; align-items: center; text-align: center; padding-bottom: 100px;">
                     <img src="images/loading4.gif" style='height: 50px; width: 50px;' alt="Loading..." />
                 </div>
                 <div id="table_container_precip"></div>
-                <script src="precip.js"></script>
+                <script src="js/precip.js"></script>
                 <!-- End Precip Div -->
                 <div class="page-content">
                     <sidebar id="sidebar">
