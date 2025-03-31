@@ -141,9 +141,9 @@
 
                                         let apiUrl = null;
                                         if (cda === "internal") {
-                                            apiUrl = `https://coe-${office.toLocaleLowerCase()}uwa04${office.toLocaleLowerCase()}.${office.toLocaleLowerCase()}.usace.army.mil:8243/${office.toLocaleLowerCase()}-data/location/group?office=${office}&include-assigned=false&location-category-like=Basins`;
+                                            apiUrl = `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/${office.toLocaleLowerCase()}-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`;
                                         } else if (cda === "public") {
-                                            apiUrl = `https://cwms-data.usace.army.mil/cwms-data/location/group?office=${office}&include-assigned=false&location-category-like=Basins`;
+                                            apiUrl = `https://cwms-data-test.cwbi.us/cwms-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`; // 2025.03.04-develop
                                         }
                                         fetch(apiUrl)
                                             .then(response => {
