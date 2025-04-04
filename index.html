@@ -19,7 +19,7 @@
 
     // Determine the default value of cda based on documentRoot
     let cdaDefault = null;
-    if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/` || `http://localhost:5173/` || `https://wm.rsgis.dev/` || `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
+    if (documentRoot === `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/`) {
         cdaDefault = "internal";
     } else if (documentRoot === `https://wm-${office.toLocaleLowerCase()}coop.mvk.ds.usace.army.mil/`) {
         cdaDefault = "internal-coop";
@@ -59,8 +59,6 @@
     <script src="js/main.js"></script>
     <script src="js/libraries/moment.min.js"></script>
     <script src="js/libraries/moment-timezone-with-data.js"></script>
-    <script src="js/libraries/chart.js"></script>
-    <script src="js/libraries/chartjs-adapter-moment.min.js"></script>
 </head>
 
 <body>
@@ -141,9 +139,9 @@
 
                                         let apiUrl = null;
                                         if (cda === "internal") {
-                                            apiUrl = `https://wm.${office.toLocaleLowerCase()}.ds.usace.army.mil/${office.toLocaleLowerCase()}-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`;
+                                            apiUrl = `https://wm.mvs.ds.usace.army.mil/${office.toLocaleLowerCase()}-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`;
                                         } else if (cda === "public") {
-                                            apiUrl = `https://cwms-data-test.cwbi.us/cwms-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`; // 2025.03.04-develop
+                                            apiUrl = `https://cwms.sec.usace.army.mil/cwms-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`; // 2025.03.04-develop
                                         }
                                         fetch(apiUrl)
                                             .then(response => {

@@ -122,48 +122,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                             // If assigned locations exist, fetch metadata and time-series data
                             if (getBasin['assigned-locations']) {
                                 getBasin['assigned-locations'].forEach(loc => {
-
-                                    // (() => {
-                                    //     // Fetch the JSON file
-                                    //     riverMilePromises.push(
-                                    //         fetch('json/gage_control_official.json')
-                                    //             .then(response => {
-                                    //                 if (!response.ok) {
-                                    //                     throw new Error(`Network response was not ok: ${response.statusText}`);
-                                    //                 }
-                                    //                 return response.json();
-                                    //             })
-                                    //             .then(riverMilesJson => {
-                                    //                 // Loop through each basin in the JSON
-                                    //                 for (const basin in riverMilesJson) {
-                                    //                     const locations = riverMilesJson[basin];
-
-                                    //                     for (const loc in locations) {
-                                    //                         const ownerData = locations[loc];
-                                    //                         // console.log("ownerData: ", ownerData);
-
-                                    //                         // Retrieve river mile and other data
-                                    //                         const riverMile = ownerData.river_mile_hard_coded;
-
-                                    //                         // Create an output object using the location name as ID
-                                    //                         const outputData = {
-                                    //                             locationId: loc, // Using location name as ID
-                                    //                             basin: basin,
-                                    //                             riverMile: riverMile
-                                    //                         };
-
-                                    //                         // console.log("Output Data:", outputData);
-                                    //                         riverMileMap.set(loc, ownerData); // Store the data in the map
-                                    //                     }
-                                    //                 }
-                                    //             })
-                                    //             .catch(error => {
-                                    //                 console.error('Problem with the fetch operation:', error);
-                                    //             })
-                                    //     )
-                                    // })();
-
-                                    // river mile data request
                                     (() => {
                                         let riverMileApiUrl = setBaseUrl + `stream-locations?office-mask=MVS`;
                                         if (riverMileApiUrl) {
@@ -191,92 +149,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                                             );
                                         }
                                     })();
-
-
-                                    // console.log(loc['location-id']);
-
-                                    // // Fetch metadata for each location
-                                    // const locApiUrl = setBaseUrl + `locations/${loc['location-id']}?office=${office}`;
-                                    // // console.log("locApiUrl: ", locApiUrl);
-                                    // metadataPromises.push(
-                                    //     fetch(locApiUrl)
-                                    //         .then(response => {
-                                    //             if (response.status === 404) {
-                                    //                 console.warn(`Location metadata not found for location: ${loc['location-id']}`);
-                                    //                 return null; // Skip if not found
-                                    //             }
-                                    //             if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                                    //             return response.json();
-                                    //         })
-                                    //         .then(locData => {
-                                    //             if (locData) {
-                                    //                 metadataMap.set(loc['location-id'], locData);
-                                    //             }
-                                    //         })
-                                    //         .catch(error => {
-                                    //             console.error(`Problem with the fetch operation for location ${loc['location-id']}:`, error);
-                                    //         })
-                                    // );
-
-
-
-                                    // // Fetch flood location level for each location
-                                    // const levelIdFlood = loc['location-id'] + ".Stage.Inst.0.Flood";
-                                    // // console.log("levelIdFlood: ", levelIdFlood);
-
-                                    // const levelIdEffectiveDate = "2024-01-01T08:00:00";
-                                    // // console.log("levelIdEffectiveDate: ", levelIdEffectiveDate);
-
-                                    // const floodApiUrl = setBaseUrl + `levels/${levelIdFlood}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
-                                    // // console.log("floodApiUrl: ", floodApiUrl);
-                                    // floodPromises.push(
-                                    //     fetch(floodApiUrl)
-                                    //         .then(response => {
-                                    //             if (response.status === 404) {
-                                    //                 console.warn(`Location metadata not found for location: ${loc['location-id']}`);
-                                    //                 return null; // Skip if not found
-                                    //             }
-                                    //             if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                                    //             return response.json();
-                                    //         })
-                                    //         .then(floodData => {
-                                    //             if (floodData) {
-                                    //                 floodMap.set(loc['location-id'], floodData);
-                                    //             }
-                                    //         })
-                                    //         .catch(error => {
-                                    //             console.error(`Problem with the fetch operation for location ${loc['location-id']}:`, error);
-                                    //         })
-                                    // );
-
-
-
-                                    // // Fetch lwrp location level for each location
-                                    // const levelIdLwrp = loc['location-id'] + ".Stage.Inst.0.LWRP";
-                                    // // console.log("levelIdFlood: ", levelIdFlood);
-
-                                    // const lwrpApiUrl = setBaseUrl + `levels/${levelIdLwrp}?office=${office}&effective-date=${levelIdEffectiveDate}&unit=ft`;
-                                    // // console.log("lwrpApiUrl: ", lwrpApiUrl);
-                                    // lwrpPromises.push(
-                                    //     fetch(lwrpApiUrl)
-                                    //         .then(response => {
-                                    //             if (response.status === 404) {
-                                    //                 console.warn(`Location metadata not found for location: ${loc['location-id']}`);
-                                    //                 return null; // Skip if not found
-                                    //             }
-                                    //             if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                                    //             return response.json();
-                                    //         })
-                                    //         .then(lwrpData => {
-                                    //             if (lwrpData) {
-                                    //                 lwrpMap.set(loc['location-id'], lwrpData);
-                                    //             }
-                                    //         })
-                                    //         .catch(error => {
-                                    //             console.error(`Problem with the fetch operation for location ${loc['location-id']}:`, error);
-                                    //         })
-                                    // );
-
 
                                     (() => {
                                         let ownerApiUrl = setBaseUrl + `location/group/${setLocationGroupOwner}?office=${office}&category-id=${office}`;
@@ -339,9 +211,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Process all the API calls and store the fetched data
             Promise.all(apiPromises)
-                // .then(() => Promise.all(metadataPromises))
-                // .then(() => Promise.all(floodPromises))
-                // .then(() => Promise.all(lwrpPromises))
                 .then(() => Promise.all(ownerPromises))
                 .then(() => Promise.all(datmanTsidPromises))
                 .then(() => Promise.all(riverMilePromises))
@@ -349,25 +218,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     combinedData.forEach(basinData => {
                         if (basinData['assigned-locations']) {
                             basinData['assigned-locations'].forEach(loc => {
-                                // Add metadata, TSID, and last-value data to the location object
-
-                                // // Add metadata to json
-                                // const metadataMapData = metadataMap.get(loc['location-id']);
-                                // if (metadataMapData) {
-                                //     loc['metadata'] = metadataMapData;
-                                // }
-
-
-                                // // Add flood to json
-                                // const floodMapData = floodMap.get(loc['location-id']);
-                                // loc['flood'] = floodMapData !== undefined ? floodMapData : null;
-
-
-                                // // Add lwrp to json
-                                // const lwrpMapData = lwrpMap.get(loc['location-id']);
-                                // loc['lwrp'] = lwrpMapData !== undefined ? lwrpMapData : null;
-
-
+                                // Add river mile to json
                                 const riverMileMapData = riverMileMap.get(loc['location-id']);
                                 if (riverMileMapData) {
                                     loc['river-mile'] = riverMileMapData;
@@ -428,6 +279,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                                                     entry[0] = formatISODate2ReadableDate(entry[0]);
                                                 });
                                             }
+
+                                            // console.log("data: ", data);
 
                                             let apiDataKey;
                                             if (type === 'datman') {
@@ -512,7 +365,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                                             // Get and store the last min value for the specific tsid
                                             const cumValue = getCumValue(data, tsid);
-                                            // console.log("cumValue: ", cumValue);
+                                            console.log("cumValue: ", cumValue);
 
                                             // Get and store the last min value for the specific tsid
                                             const incValue = getIncValue(data, tsid);
@@ -539,7 +392,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                                         });
                                 });
                             };
-
 
                             // Create promises for temperature, depth, and DO time series
                             const datmanPromises = timeSeriesDataFetchPromises(datmanTimeSeries, 'datman');
@@ -677,7 +529,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                             // If no match, remove the location
                             if (!matchingOwnerLocation) {
-                                console.log(`Removing location with id ${location['location-id']} as it does not match owner`);
+                                // console.log(`Removing location with id ${location['location-id']} as it does not match owner`);
                                 locations.splice(i, 1);
                             }
                         }
@@ -708,43 +560,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     });
 
                     console.log('Filtered all locations where tsid is null successfully:', combinedData);
-
-
-                    // Check if there are valid lastDatmanValues in the data
-                    // if (hasLastValue(combinedData)) {
-                    //     console.log("combinedData has all valid data.");
-                    //     if (hasDataSpike(combinedData)) {
-                    //         console.log("combinedData has all valid data, but data spike detected. Calling createTableDataSpike.");
-                    //         // call createTable if data spike exists
-                    //         const table = createTableDataSpike(combinedData);
-
-                    //         // Append the table to the specified container
-                    //         const container = document.getElementById(`table_container_alarm_${reportDiv}`);
-                    //         container.appendChild(table);
-                    //     } else {
-                    //         console.log("combinedData has all valid data and no data spikes detected. Displaying image instead.");
-
-                    //         // Create an img element
-                    //         const img = document.createElement('img');
-                    //         img.src = '/apps/alarms/images/passed.png'; // Set the image source
-                    //         img.alt = 'Process Completed'; // Optional alt text for accessibility
-                    //         img.style.width = '50px'; // Optional: set the image width
-                    //         img.style.height = '50px'; // Optional: set the image height
-
-                    //         // Get the container and append the image
-                    //         const container = document.getElementById(`table_container_alarm_${reportDiv}`);
-                    //         container.appendChild(img);
-                    //     }
-                    // } else {
-                    //     console.log("combinedData does not have all valid data. Calling createTable");
-
-                    //     // Only call createTable if no valid data exists
-                    //     const table = createTable(combinedData, type, reportNumber);
-
-                    //     // Append the table to the specified container
-                    //     const container = document.getElementById(`table_container_alarm_${reportDiv}`);
-                    //     container.appendChild(table);
-                    // }
 
                     // Only call createTable if no valid data exists
                     const table = createTablePrecip(combinedData, type, reportNumber);
@@ -924,129 +739,86 @@ function getCumValue(data, tsid) {
     let value66 = null; // 66 hours earlier
     let value72 = null; // 72 hours earlier
 
+    console.log("Data received:", data);
+    console.log("TSID:", tsid);
+
     // Iterate over the values array in reverse
     for (let i = data.values.length - 1; i >= 0; i--) {
         const [timestamp, value, qualityCode] = data.values[i];
 
-        // Check if the value at index i is not null
+        console.log(`Processing index ${i}:`, { timestamp, value, qualityCode });
+
+        // Ensure the value is not null
         if (value !== null) {
             // Convert timestamp to Date object
-            const currentTimestamp = new Date(timestamp);
-            // console.log("currentTimestamp: ", currentTimestamp);
+            let currentTimestamp = new Date(fixTimestamp(timestamp));
+            console.log("Parsed currentTimestamp:", currentTimestamp);
 
-            // If value0 hasn't been set, set it to the latest non-null value
+            if (isNaN(currentTimestamp.getTime())) {
+                console.warn(`Invalid date parsed: ${timestamp}`);
+                continue; // Skip this iteration
+            }
+
+            // If value0 hasn't been set, assign it the latest non-null value
             if (!value0) {
-                value0 = { tsid, timestamp, value, qualityCode };
+                value0 = { 
+                    tsid, 
+                    timestamp: timestamp.replace(/(\d{2})-(\d{2})-(\d{4}) (\d{2}:\d{2})/, "$3-$1-$2T$4:00Z"), 
+                    value: parseFloat(value), 
+                    qualityCode 
+                };
+                console.log("Assigned value0:", value0);
             } else {
                 // Calculate target timestamps for each interval
-                const sixHoursEarlier = new Date(value0.timestamp);
-                sixHoursEarlier.setHours(sixHoursEarlier.getHours() - 6);
+                const timeOffsets = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72];
+                let timeValues = [
+                    value6, value12, value18, value24, value30, value36,
+                    value42, value48, value54, value60, value66, value72
+                ];
 
-                const twelveHoursEarlier = new Date(value0.timestamp);
-                twelveHoursEarlier.setHours(twelveHoursEarlier.getHours() - 12);
+                for (let j = 0; j < timeOffsets.length; j++) {
+                    if (!timeValues[j]) {
+                        const targetTime = new Date(value0.timestamp);
+                        targetTime.setHours(targetTime.getHours() - timeOffsets[j]);
+                        console.log(`Checking for offset ${timeOffsets[j]} hours, targetTime:`, targetTime);
 
-                const eighteenHoursEarlier = new Date(value0.timestamp);
-                eighteenHoursEarlier.setHours(eighteenHoursEarlier.getHours() - 18);
-
-                const twentyFourHoursEarlier = new Date(value0.timestamp);
-                twentyFourHoursEarlier.setHours(twentyFourHoursEarlier.getHours() - 24);
-
-                const thirtyHoursEarlier = new Date(value0.timestamp);
-                thirtyHoursEarlier.setHours(thirtyHoursEarlier.getHours() - 30);
-
-                const thirtySixHoursEarlier = new Date(value0.timestamp);
-                thirtySixHoursEarlier.setHours(thirtySixHoursEarlier.getHours() - 36);
-
-                const fortyTwoHoursEarlier = new Date(value0.timestamp);
-                fortyTwoHoursEarlier.setHours(fortyTwoHoursEarlier.getHours() - 42);
-
-                const fortyEightHoursEarlier = new Date(value0.timestamp);
-                fortyEightHoursEarlier.setHours(fortyEightHoursEarlier.getHours() - 48);
-
-                const fiftyFourHoursEarlier = new Date(value0.timestamp);
-                fiftyFourHoursEarlier.setHours(fiftyFourHoursEarlier.getHours() - 54);
-
-                const sixtyHoursEarlier = new Date(value0.timestamp);
-                sixtyHoursEarlier.setHours(sixtyHoursEarlier.getHours() - 60);
-
-                const sixtySixHoursEarlier = new Date(value0.timestamp);
-                sixtySixHoursEarlier.setHours(sixtySixHoursEarlier.getHours() - 66);
-
-                const seventyTwoHoursEarlier = new Date(value0.timestamp);
-                seventyTwoHoursEarlier.setHours(seventyTwoHoursEarlier.getHours() - 72);
-
-                // Assign values if the timestamps match
-                if (!value6 && currentTimestamp.getTime() === sixHoursEarlier.getTime()) {
-                    value6 = { tsid, timestamp, value, qualityCode };
-                } else if (!value12 && currentTimestamp.getTime() === twelveHoursEarlier.getTime()) {
-                    value12 = { tsid, timestamp, value, qualityCode };
-                } else if (!value18 && currentTimestamp.getTime() === eighteenHoursEarlier.getTime()) {
-                    value18 = { tsid, timestamp, value, qualityCode };
-                } else if (!value24 && currentTimestamp.getTime() === twentyFourHoursEarlier.getTime()) {
-                    value24 = { tsid, timestamp, value, qualityCode };
-                } else if (!value30 && currentTimestamp.getTime() === thirtyHoursEarlier.getTime()) {
-                    value30 = { tsid, timestamp, value, qualityCode };
-                } else if (!value36 && currentTimestamp.getTime() === thirtySixHoursEarlier.getTime()) {
-                    value36 = { tsid, timestamp, value, qualityCode };
-                } else if (!value42 && currentTimestamp.getTime() === fortyTwoHoursEarlier.getTime()) {
-                    value42 = { tsid, timestamp, value, qualityCode };
-                } else if (!value48 && currentTimestamp.getTime() === fortyEightHoursEarlier.getTime()) {
-                    value48 = { tsid, timestamp, value, qualityCode };
-                } else if (!value54 && currentTimestamp.getTime() === fiftyFourHoursEarlier.getTime()) {
-                    value54 = { tsid, timestamp, value, qualityCode };
-                } else if (!value60 && currentTimestamp.getTime() === sixtyHoursEarlier.getTime()) {
-                    value60 = { tsid, timestamp, value, qualityCode };
-                } else if (!value66 && currentTimestamp.getTime() === sixtySixHoursEarlier.getTime()) {
-                    value66 = { tsid, timestamp, value, qualityCode };
-                } else if (!value72 && currentTimestamp.getTime() === seventyTwoHoursEarlier.getTime()) {
-                    value72 = { tsid, timestamp, value, qualityCode };
+                        // Allow slight variations due to potential parsing issues
+                        const timeDiff = Math.abs(currentTimestamp - targetTime);
+                        if (timeDiff < 3600000) { // Allow a 1-hour tolerance
+                            timeValues[j] = { tsid, timestamp, value: parseFloat(value), qualityCode };
+                            console.log(`Assigned value for ${timeOffsets[j]} hours earlier:`, timeValues[j]);
+                        }
+                    }
                 }
 
+                // Assign updated values back
+                [value6, value12, value18, value24, value30, value36,
+                    value42, value48, value54, value60, value66, value72] = timeValues;
+
                 // Break loop if all values are found
-                if (
-                    value6 &&
-                    value12 &&
-                    value18 &&
-                    value24 &&
-                    value30 &&
-                    value36 &&
-                    value42 &&
-                    value48 &&
-                    value54 &&
-                    value60 &&
-                    value66 &&
-                    value72
-                ) {
+                if (timeValues.every(val => val)) {
+                    console.log("All required values found, breaking loop.");
                     break;
                 }
             }
         }
     }
 
-    // Calculate incremental values (valueX - valuePrevious)
-    // const incrementalValues = {
-    //     incremental6: value6 ? value0.value - value6.value : null,
-    //     incremental12: value12 ? value6.value - value12.value : null,
-    //     incremental18: value18 ? value12.value - value18.value : null,
-    //     incremental24: value24 ? value18.value - value24.value : null,
-    //     incremental30: value30 ? value24.value - value30.value : null,
-    //     incremental36: value36 ? value30.value - value36.value : null,
-    //     incremental42: value42 ? value36.value - value42.value : null,
-    //     incremental48: value48 ? value42.value - value48.value : null,
-    //     incremental54: value54 ? value48.value - value54.value : null,
-    //     incremental60: value60 ? value54.value - value60.value : null,
-    //     incremental66: value66 ? value60.value - value66.value : null,
-    //     incremental72: value72 ? value66.value - value72.value : null,
-    // };
+    console.log("Final extracted values:", {
+        value0, value6, value12, value18, value24, value30,
+        value36, value42, value48, value54, value60, value66, value72
+    });
 
     // Calculate cumulative values (value0 - valueX)
     const cumulativeValues = {
-        cumulative6: value0 && value6 ? value0.value - value6.value : null,
-        cumulative12: value0 && value12 ? value0.value - value12.value : null,
-        cumulative24: value0 && value24 ? value0.value - value24.value : null,
-        cumulative48: value0 && value48 ? value0.value - value48.value : null,
-        cumulative72: value0 && value72 ? value0.value - value72.value : null,
+        cumulative6: value0 && value6 ? parseFloat(value0.value) - parseFloat(value6.value) : null,
+        cumulative12: value0 && value12 ? parseFloat(value0.value) - parseFloat(value12.value) : null,
+        cumulative24: value0 && value24 ? parseFloat(value0.value) - parseFloat(value24.value) : null,
+        cumulative48: value0 && value48 ? parseFloat(value0.value) - parseFloat(value48.value) : null,
+        cumulative72: value0 && value72 ? parseFloat(value0.value) - parseFloat(value72.value) : null,
     };
+
+    console.log("Cumulative Values:", cumulativeValues);
 
     return {
         value0,
@@ -1062,8 +834,7 @@ function getCumValue(data, tsid) {
         value60,
         value66,
         value72,
-        // ...incrementalValues, // Spread operator to include incremental values in the return object
-        ...cumulativeValues // Spread operator to include cumulative values in the return object
+        ...cumulativeValues
     };
 }
 
@@ -1364,7 +1135,8 @@ function createTablePrecip(combinedData, type, reportNumber) {
             const linkElement = document.createElement('a');
             linkElement.href = link;
             linkElement.target = '_blank';
-            linkElement.textContent = location['location-id'];
+            linkElement.textContent = (location['location-id']).split('-')[0];
+            locationCell.style.whiteSpace = 'nowrap'; 
             locationCell.appendChild(linkElement);
             row.appendChild(locationCell);
 
@@ -1406,20 +1178,20 @@ function createTablePrecip(combinedData, type, reportNumber) {
 
                 // Zero hour cell
                 const zeroHourCell = document.createElement('td');
-                zeroHourCell.textContent = dataValues && dataValues.value0 && dataValues.value0.timestamp 
-                    ? dataValues.value0.timestamp 
+                zeroHourCell.textContent = dataValues && dataValues.value0 && dataValues.value0.timestamp
+                    ? dataValues.value0.timestamp
                     : 'N/A'; // Default to 'N/A' if missing
                 row.appendChild(zeroHourCell);
 
             } else if (type === "cum") {
                 const dataValues = location['datman-cum-value'] && location['datman-cum-value'][0]; // Safely access the first element
-            
+
                 ["cumulative6", "cumulative12", "cumulative24", "cumulative48", "cumulative72"].forEach((timeKey) => {
                     const cell = document.createElement('td');
                     const value = dataValues ? dataValues[timeKey] : null; // Use null if dataValues or key is missing
-                    const numericValue = (value !== undefined && value !== null) ? Number(value) : NaN; // Convert to number
+                    const numericValue = (value !== undefined && value !== null) ? parseFloat(value) : NaN; // Convert to float
                     cell.textContent = !isNaN(numericValue) ? numericValue.toFixed(2) : 'N/A';
-            
+
                     // Set background color based on value conditions
                     if (!isNaN(numericValue)) {
                         if (numericValue > 2.00 || numericValue < 0.00) {
@@ -1438,17 +1210,19 @@ function createTablePrecip(combinedData, type, reportNumber) {
                             cell.style.backgroundColor = 'purple';
                         }
                     }
-            
+
                     row.appendChild(cell);
                 });
-            
+
                 // Zero hour cell
                 const zeroHourCell = document.createElement('td');
-                zeroHourCell.textContent = dataValues && dataValues.value0 && dataValues.value0.timestamp 
-                    ? dataValues.value0.timestamp 
+                const zeroHour = dataValues && dataValues.value0 && dataValues.value0.timestamp;
+                zeroHourCell.innerHTML = zeroHour
+                    ? dataValues.value0.timestamp
                     : 'N/A'; // Default to 'N/A' if missing
+                zeroHourCell.style.whiteSpace = 'nowrap';  // Prevent line break in the cell
                 row.appendChild(zeroHourCell);
-            }                       
+            }
 
             // Append row to table
             table.appendChild(row);
@@ -1470,4 +1244,10 @@ function getStationForLocation(locationId, riverMileObject) {
         }
     }
     return null; // Return null if no match is found
+}
+
+function fixTimestamp(timestamp) {
+    // Convert "MM-DD-YYYY HH:mm" → "YYYY-MM-DDTHH:mm:ssZ"
+    let [month, day, year, time] = timestamp.split(/[- ]/);
+    return `${year}-${month}-${day}T${time}:00Z`; 
 }
