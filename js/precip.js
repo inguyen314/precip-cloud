@@ -835,142 +835,92 @@ function getCumValue(data, tsid) {
 }
 
 function getIncValue(data, tsid) {
-    let value0 = null;  // Recent (0 hours)
-    let value6 = null;  // 6 hours earlier
-    let value12 = null; // 12 hours earlier
-    let value18 = null; // 18 hours earlier
-    let value24 = null; // 24 hours earlier
-    let value30 = null; // 30 hours earlier
-    let value36 = null; // 36 hours earlier
-    let value42 = null; // 42 hours earlier
-    let value48 = null; // 48 hours earlier
-    let value54 = null; // 54 hours earlier
-    let value60 = null; // 60 hours earlier
-    let value66 = null; // 66 hours earlier
-    let value72 = null; // 72 hours earlier
+    let value0 = null;
+    let value6 = null;
+    let value12 = null;
+    let value18 = null;
+    let value24 = null;
+    let value30 = null;
+    let value36 = null;
+    let value42 = null;
+    let value48 = null;
+    let value54 = null;
+    let value60 = null;
+    let value66 = null;
+    let value72 = null;
 
-    // Iterate over the values array in reverse
     for (let i = data.values.length - 1; i >= 0; i--) {
         const [timestamp, value, qualityCode] = data.values[i];
 
-        // Check if the value at index i is not null
         if (value !== null) {
-            // Convert timestamp to Date object
-            const currentTimestamp = new Date(timestamp);
+            let currentTimestamp = new Date(fixTimestamp(timestamp));
+            // console.log("Parsed currentTimestamp:", currentTimestamp);
 
-            // If value0 hasn't been set, set it to the latest non-null value
+            if (isNaN(currentTimestamp.getTime())) {
+                // console.warn(`Invalid date parsed: ${timestamp}`);
+                continue; // Skip this iteration
+            }
+
             if (!value0) {
-                value0 = { tsid, timestamp, value, qualityCode };
+                value0 = {
+                    tsid,
+                    timestamp: timestamp.replace(/(\d{2})-(\d{2})-(\d{4}) (\d{2}:\d{2})/, "$3-$1-$2T$4:00Z"),
+                    value: parseFloat(value),
+                    qualityCode
+                };
+                // console.log("Assigned value0:", value0);
             } else {
                 // Calculate target timestamps for each interval
-                const sixHoursEarlier = new Date(value0.timestamp);
-                sixHoursEarlier.setHours(sixHoursEarlier.getHours() - 6);
+                const timeOffsets = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72];
+                let timeValues = [
+                    value6, value12, value18, value24, value30, value36,
+                    value42, value48, value54, value60, value66, value72
+                ];
 
-                const twelveHoursEarlier = new Date(value0.timestamp);
-                twelveHoursEarlier.setHours(twelveHoursEarlier.getHours() - 12);
+                for (let j = 0; j < timeOffsets.length; j++) {
+                    if (!timeValues[j]) {
+                        const targetTime = new Date(value0.timestamp);
+                        targetTime.setHours(targetTime.getHours() - timeOffsets[j]);
+                        // console.log(`Checking for offset ${timeOffsets[j]} hours, targetTime:`, targetTime);
 
-                const eighteenHoursEarlier = new Date(value0.timestamp);
-                eighteenHoursEarlier.setHours(eighteenHoursEarlier.getHours() - 18);
-
-                const twentyFourHoursEarlier = new Date(value0.timestamp);
-                twentyFourHoursEarlier.setHours(twentyFourHoursEarlier.getHours() - 24);
-
-                const thirtyHoursEarlier = new Date(value0.timestamp);
-                thirtyHoursEarlier.setHours(thirtyHoursEarlier.getHours() - 30);
-
-                const thirtySixHoursEarlier = new Date(value0.timestamp);
-                thirtySixHoursEarlier.setHours(thirtySixHoursEarlier.getHours() - 36);
-
-                const fortyTwoHoursEarlier = new Date(value0.timestamp);
-                fortyTwoHoursEarlier.setHours(fortyTwoHoursEarlier.getHours() - 42);
-
-                const fortyEightHoursEarlier = new Date(value0.timestamp);
-                fortyEightHoursEarlier.setHours(fortyEightHoursEarlier.getHours() - 48);
-
-                const fiftyFourHoursEarlier = new Date(value0.timestamp);
-                fiftyFourHoursEarlier.setHours(fiftyFourHoursEarlier.getHours() - 54);
-
-                const sixtyHoursEarlier = new Date(value0.timestamp);
-                sixtyHoursEarlier.setHours(sixtyHoursEarlier.getHours() - 60);
-
-                const sixtySixHoursEarlier = new Date(value0.timestamp);
-                sixtySixHoursEarlier.setHours(sixtySixHoursEarlier.getHours() - 66);
-
-                const seventyTwoHoursEarlier = new Date(value0.timestamp);
-                seventyTwoHoursEarlier.setHours(seventyTwoHoursEarlier.getHours() - 72);
-
-                // Assign values if the timestamps match
-                if (!value6 && currentTimestamp.getTime() === sixHoursEarlier.getTime()) {
-                    value6 = { tsid, timestamp, value, qualityCode };
-                } else if (!value12 && currentTimestamp.getTime() === twelveHoursEarlier.getTime()) {
-                    value12 = { tsid, timestamp, value, qualityCode };
-                } else if (!value18 && currentTimestamp.getTime() === eighteenHoursEarlier.getTime()) {
-                    value18 = { tsid, timestamp, value, qualityCode };
-                } else if (!value24 && currentTimestamp.getTime() === twentyFourHoursEarlier.getTime()) {
-                    value24 = { tsid, timestamp, value, qualityCode };
-                } else if (!value30 && currentTimestamp.getTime() === thirtyHoursEarlier.getTime()) {
-                    value30 = { tsid, timestamp, value, qualityCode };
-                } else if (!value36 && currentTimestamp.getTime() === thirtySixHoursEarlier.getTime()) {
-                    value36 = { tsid, timestamp, value, qualityCode };
-                } else if (!value42 && currentTimestamp.getTime() === fortyTwoHoursEarlier.getTime()) {
-                    value42 = { tsid, timestamp, value, qualityCode };
-                } else if (!value48 && currentTimestamp.getTime() === fortyEightHoursEarlier.getTime()) {
-                    value48 = { tsid, timestamp, value, qualityCode };
-                } else if (!value54 && currentTimestamp.getTime() === fiftyFourHoursEarlier.getTime()) {
-                    value54 = { tsid, timestamp, value, qualityCode };
-                } else if (!value60 && currentTimestamp.getTime() === sixtyHoursEarlier.getTime()) {
-                    value60 = { tsid, timestamp, value, qualityCode };
-                } else if (!value66 && currentTimestamp.getTime() === sixtySixHoursEarlier.getTime()) {
-                    value66 = { tsid, timestamp, value, qualityCode };
-                } else if (!value72 && currentTimestamp.getTime() === seventyTwoHoursEarlier.getTime()) {
-                    value72 = { tsid, timestamp, value, qualityCode };
+                        // Allow slight variations due to potential parsing issues
+                        const timeDiff = Math.abs(currentTimestamp - targetTime);
+                        if (timeDiff < 3600000) { // Allow a 1-hour tolerance
+                            timeValues[j] = { tsid, timestamp, value: parseFloat(value), qualityCode };
+                            // console.log(`Assigned value for ${timeOffsets[j]} hours earlier:`, timeValues[j]);
+                        }
+                    }
                 }
 
+                // Assign updated values back
+                [value6, value12, value18, value24, value30, value36,
+                    value42, value48, value54, value60, value66, value72] = timeValues;
+
                 // Break loop if all values are found
-                if (
-                    value6 &&
-                    value12 &&
-                    value18 &&
-                    value24 &&
-                    value30 &&
-                    value36 &&
-                    value42 &&
-                    value48 &&
-                    value54 &&
-                    value60 &&
-                    value66 &&
-                    value72
-                ) {
+                if (timeValues.every(val => val)) {
+                    // console.log("All required values found, breaking loop.");
                     break;
                 }
             }
         }
     }
 
-    // Calculate incremental values (valueX - valuePrevious)
     const incrementalValues = {
-        incremental6: value6 ? value0.value - value6.value : null,
-        incremental12: value12 ? value6.value - value12.value : null,
-        incremental18: value18 ? value12.value - value18.value : null,
-        incremental24: value24 ? value18.value - value24.value : null,
-        incremental30: value30 ? value24.value - value30.value : null,
-        incremental36: value36 ? value30.value - value36.value : null,
-        incremental42: value42 ? value36.value - value42.value : null,
-        incremental48: value48 ? value42.value - value48.value : null,
-        incremental54: value54 ? value48.value - value54.value : null,
-        incremental60: value60 ? value54.value - value60.value : null,
-        incremental66: value66 ? value60.value - value66.value : null,
-        incremental72: value72 ? value66.value - value72.value : null,
-    };
+        incremental6: value6 ? parseFloat(value0.value) - parseFloat(value6.value) : null,
+        incremental12: value12 ? parseFloat(value6.value) - parseFloat(value12.value) : null,
+        incremental18: value18 ? parseFloat(value12.value) - parseFloat(value18.value) : null,
+        incremental24: value24 ? parseFloat(value18.value) - parseFloat(value24.value) : null,
+        incremental30: value30 ? parseFloat(value24.value) - parseFloat(value30.value) : null,
+        incremental36: value36 ? parseFloat(value30.value) - parseFloat(value36.value) : null,
+        incremental42: value42 ? parseFloat(value36.value) - parseFloat(value42.value) : null,
+        incremental48: value48 ? parseFloat(value42.value) - parseFloat(value48.value) : null,
+        incremental54: value54 ? parseFloat(value48.value) - parseFloat(value54.value) : null,
+        incremental60: value60 ? parseFloat(value54.value) - parseFloat(value60.value) : null,
+        incremental66: value66 ? parseFloat(value60.value) - parseFloat(value66.value) : null,
+        incremental72: value72 ? parseFloat(value66.value) - parseFloat(value72.value) : null,
+    };    
 
-    // Calculate cumulative values (value0 - valueX)
-    // const cumulativeValues = {
-    //     cumulative6: value0 && value6 ? value0.value - value6.value : null,
-    //     cumulative12: value0 && value12 ? value0.value - value12.value : null,
-    //     cumulative24: value0 && value24 ? value0.value - value24.value : null,
-    //     cumulative48: value0 && value48 ? value0.value - value48.value : null,
-    //     cumulative72: value0 && value72 ? value0.value - value72.value : null,
-    // };
+    // console.log("Final incremental values:", incrementalValues);
 
     return {
         value0,
@@ -986,8 +936,7 @@ function getIncValue(data, tsid) {
         value60,
         value66,
         value72,
-        ...incrementalValues, // Spread operator to include incremental values in the return object
-        // ...cumulativeValues // Spread operator to include cumulative values in the return object
+        ...incrementalValues
     };
 }
 
@@ -1177,6 +1126,7 @@ function createTablePrecip(combinedData, type) {
 
                 // Zero hour cell
                 const zeroHourCell = document.createElement('td');
+                zeroHourCell.style.whiteSpace = 'nowrap';  // Prevent line break in the cell
                 zeroHourCell.textContent = dataValues && dataValues.value0 && dataValues.value0.timestamp
                     ? dataValues.value0.timestamp
                     : 'N/A'; // Default to 'N/A' if missing
@@ -1215,6 +1165,7 @@ function createTablePrecip(combinedData, type) {
 
                 // Zero hour cell
                 const zeroHourCell = document.createElement('td');
+                zeroHourCell.style.whiteSpace = 'nowrap';  // Prevent line break in the cell
                 const zeroHour = dataValues && dataValues.value0 && dataValues.value0.timestamp;
                 zeroHourCell.innerHTML = zeroHour
                     ? dataValues.value0.timestamp
