@@ -39,7 +39,7 @@
     var basin = urlParams.get('basin') || 'Mississippi';
     console.log('basin: ', basin);
 
-    var type = urlParams.get('type');
+    var type = urlParams.get('type') || "cum";
     console.log('type: ', type);
 </script>
 <!DOCTYPE html>
@@ -78,171 +78,177 @@
                             </h2>
                             <div class="box-content" style="background-color:white;margin:auto">
                                 <div class="content">
-                                    <!-- LENGEND SETUP -->
-                                    <div id="legend"></div>
-                                    <script>
-                                        // Create table element
-                                        var table = document.createElement("table");
-                                        table.id = "precip_title";
 
-                                        // Create table row
-                                        var row = document.createElement("tr");
-
-                                        // Add cells to the row
-                                        row.innerHTML = "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>" +
-                                            "<td class='precip_equal_0_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Zero<br>Precip.</td>" +
-                                            "<td class='precip_greater_0_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Low<br>0.00-0.25</td>" +
-                                            "<td class='precip_greater_25_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Low-Med<br>0.25-0.50</td>" +
-                                            "<td class='precip_greater_50_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Med-High<br>0.50-1.00</td>" +
-                                            "<td class='precip_greater_100_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>High<br>1.00-2.00</td>" +
-                                            "<td class='precip_missing_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Missing<br>Data</td>" +
-                                            "<td class='precip_greater_200_legend'>#FFFFFF</td>" +
-                                            "<td style='text-align: center'>Over<br>Limit</td>" +
-                                            "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
-
-                                        // Append the row to the table
-                                        table.appendChild(row);
-
-                                        // Append the table to the div with id "legend"
-                                        document.getElementById("legend").appendChild(table);
-                                    </script>
-
-                                    <!-- Basin Selection -->
-                                    <div id="container"></div>
-                                    <script>
-                                        // Create table element
-                                        var table = document.createElement('table');
-                                        table.id = 'basins';
-
-                                        // Create tbody element
-                                        var tbody = document.createElement('tbody');
-                                        table.appendChild(tbody);
-
-                                        // Create tr element
-                                        var tr = document.createElement('tr');
-                                        tbody.appendChild(tr);
-
-                                        // Create th elements
-                                        for (var i = 0; i < 3; i++) {
-                                            var th = document.createElement('th');
-                                            th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                                            tr.appendChild(th);
-                                        }
-
-                                        let basins = null;
-
-                                        let apiUrl = null;
-                                        if (cda === "internal") {
-                                            apiUrl = `https://wm.mvs.ds.usace.army.mil/${office.toLocaleLowerCase()}-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`;
-                                        } else if (cda === "public") {
-                                            apiUrl = `https://cwms.sec.usace.army.mil/cwms-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`; // 2025.03.04-develop
-                                        }
-                                        fetch(apiUrl)
-                                            .then(response => {
-                                                if (!response.ok) {
-                                                    throw new Error('Network response was not ok');
-                                                }
-                                                return response.json();
-                                            })
-                                            .then(data => {
-                                                if (!Array.isArray(data) || data.length === 0) {
-                                                    console.warn('No data available from the initial fetch.');
-                                                    return;
-                                                }
-
-                                                console.log('Data fetched:', data);
-
-                                                const targetCategory = { "office-id": office, "id": "Basins" };
-
-                                                function filterByLocationCategory(array, category) {
-                                                    return array.filter(item =>
-                                                        item['location-category'] &&
-                                                        item['location-category']['office-id'] === category['office-id'] &&
-                                                        item['location-category']['id'] === category['id']
-                                                    );
-                                                }
-
-                                                const filteredArray = filterByLocationCategory(data, targetCategory);
-                                                console.log(filteredArray);
-
-                                                // Extract the "id" values from each object
-                                                basins = filteredArray.map(item => item.id);
-                                                if (basins.length === 0) {
-                                                    console.warn('No basins found for the given category.');
-                                                    return;
-                                                }
-
-                                                console.log("basins: ", basins);
-
-                                                let basinsOrder = null;
-                                                if (office === "MVS") {
-                                                    basinsOrder = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'St Francis'];
-                                                }
-
-                                                const removeBasins = ['Castor'];
-
-                                                // Filter out basins that should be removed
-                                                const filteredBasins = basins.filter(basin => !removeBasins.includes(basin));
-
-                                                // Create a lookup object for sorting
-                                                const orderMap = Object.fromEntries(basinsOrder.map((basin, index) => [basin, index]));
-
-                                                // Sort basins based on the order in basinsOrder
-                                                const sortedBasins = filteredBasins.sort((a, b) => orderMap[a] - orderMap[b]);
-
-                                                console.log("sortedBasins: ", sortedBasins);
-
-                                                basins = sortedBasins;
-
-                                                if (cda === "public") {
-                                                    for (var i = 0; i < basins.length; i++) {
-                                                        var th = document.createElement('th');
-                                                        var link = document.createElement('a');
-                                                        link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=public";
-                                                        link.innerHTML = '<strong>' + basins[i] + '</strong>';
-                                                        var p = document.createElement('p');
-                                                        p.appendChild(link);
-                                                        th.appendChild(p);
-                                                        tr.appendChild(th);
-                                                    }
-                                                } else if (cda === "internal") {
-                                                    for (var i = 0; i < basins.length; i++) {
-                                                        var th = document.createElement('th');
-                                                        var link = document.createElement('a');
-                                                        link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=internal";
-                                                        link.innerHTML = '<strong>' + basins[i] + '</strong>';
-                                                        var p = document.createElement('p');
-                                                        p.appendChild(link);
-                                                        th.appendChild(p);
-                                                        tr.appendChild(th);
-                                                    }
-                                                } else {
-
-                                                }
-
-
-                                                // Create th elements for remaining spaces
-                                                for (var i = 0; i < 2; i++) {
-                                                    var th = document.createElement('th');
-                                                    th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                                                    tr.appendChild(th);
-                                                }
-
-                                                // Append table to the container div<strong>May 2024 - Version V2.1</strong> - gage_control3.json was used <br> 
-                                                document.getElementById('container').appendChild(table);
-                                            });
-                                    </script>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- LENGEND SETUP -->
+                <div id="legend"></div>
+                <script>
+                    // Create table element
+                    var table = document.createElement("table");
+                    table.id = "precip_title";
+
+                    // Create table row
+                    var row = document.createElement("tr");
+
+                    // Add cells to the row
+                    row.innerHTML = "<td class='precip_equal_0_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Zero<br>Precip.</td>" +
+                        "<td class='precip_greater_0_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Low<br>0.00-0.25</td>" +
+                        "<td class='precip_greater_25_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Low-Med<br>0.25-0.50</td>" +
+                        "<td class='precip_greater_50_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Med-High<br>0.50-1.00</td>" +
+                        "<td class='precip_greater_100_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>High<br>1.00-2.00</td>" +
+                        "<td class='precip_missing_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Missing<br>Data</td>" +
+                        "<td class='precip_greater_200_legend'>FFFFF</td>" +
+                        "<td style='text-align: center'>Over<br>Limit</td>";
+
+                    // Append the row to the table
+                    table.appendChild(row);
+
+                    // Append the table to the div with id "legend"
+                    document.getElementById("legend").appendChild(table);
+                </script>
+
+                <!-- Basin Selection -->
+                <div id="container"></div>
+                <script>
+                    // Create table element
+                    var table = document.createElement('table');
+                    table.id = 'basins';
+
+                    // Create tbody element
+                    var tbody = document.createElement('tbody');
+                    table.appendChild(tbody);
+
+                    // Create tr element
+                    var tr = document.createElement('tr');
+                    tbody.appendChild(tr);
+
+                    // Create th elements
+                    // for (var i = 0; i < 3; i++) {
+                    //     var th = document.createElement('th');
+                    //     th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                    //     tr.appendChild(th);
+                    // }
+
+                    let basins = null;
+
+                    let apiUrl = null;
+                    if (cda === "internal") {
+                        apiUrl = `https://wm.mvs.ds.usace.army.mil/${office.toLocaleLowerCase()}-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`;
+                    } else if (cda === "public") {
+                        apiUrl = `https://cwms.sec.usace.army.mil/cwms-data/location/group?office=${office}&group-office-id=${office}&category-office-id=${office}&category-id=Basins`; // 2025.03.04-develop
+                    }
+                    fetch(apiUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!Array.isArray(data) || data.length === 0) {
+                                console.warn('No data available from the initial fetch.');
+                                return;
+                            }
+
+                            // console.log('Data fetched:', data);
+
+                            const targetCategory = { "office-id": office, "id": "Basins" };
+
+                            function filterByLocationCategory(array, category) {
+                                return array.filter(item =>
+                                    item['location-category'] &&
+                                    item['location-category']['office-id'] === category['office-id'] &&
+                                    item['location-category']['id'] === category['id']
+                                );
+                            }
+
+                            const filteredArray = filterByLocationCategory(data, targetCategory);
+                            console.log(filteredArray);
+
+                            // Extract the "id" values from each object
+                            basins = filteredArray.map(item => item.id);
+                            if (basins.length === 0) {
+                                console.warn('No basins found for the given category.');
+                                return;
+                            }
+
+                            console.log("basins: ", basins);
+
+                            let basinsOrder = null;
+                            if (office === "MVS") {
+                                basinsOrder = ['Mississippi', 'Ohio', 'Salt', 'Cuivre', 'Illinois', 'Missouri', 'Meramec', 'Kaskaskia', 'Big Muddy', 'St Francis'];
+                            }
+
+                            const removeBasins = ['Castor'];
+
+                            // Filter out basins that should be removed
+                            const filteredBasins = basins.filter(basin => !removeBasins.includes(basin));
+
+                            // Create a lookup object for sorting
+                            const orderMap = Object.fromEntries(basinsOrder.map((basin, index) => [basin, index]));
+
+                            // Sort basins based on the order in basinsOrder
+                            const sortedBasins = filteredBasins.sort((a, b) => orderMap[a] - orderMap[b]);
+
+                            console.log("sortedBasins: ", sortedBasins);
+
+                            basins = sortedBasins;
+
+                            if (cda === "public") {
+                                for (var i = 0; i < basins.length; i++) {
+                                    var th = document.createElement('th');
+                                    var link = document.createElement('a');
+                                    link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=public";
+                                    link.innerHTML = '<strong>' + basins[i] + '</strong>';
+                                    link.style.whiteSpace = 'nowrap';
+                                    link.style.paddingLeft = '5px';
+                                    link.style.paddingRight = '5px';
+                                    var p = document.createElement('p');
+                                    p.appendChild(link);
+                                    th.appendChild(p);
+                                    tr.appendChild(th);
+                                }
+                            } else if (cda === "internal") {
+                                for (var i = 0; i < basins.length; i++) {
+                                    var th = document.createElement('th');
+                                    var link = document.createElement('a');
+                                    link.href = 'index.html?office=' + office + '&basin=' + basins[i] + '&type=' + type + "&cda=internal";
+                                    link.innerHTML = '<strong>' + basins[i] + '</strong>';
+                                    link.style.whiteSpace = 'nowrap';
+                                    link.style.paddingLeft = '5px';
+                                    link.style.paddingRight = '5px';
+                                    var p = document.createElement('p');
+                                    p.appendChild(link);
+                                    th.appendChild(p);
+                                    tr.appendChild(th);
+                                }
+                            } else {
+
+                            }
+
+
+                            // Create th elements for remaining spaces
+                            // for (var i = 0; i < 2; i++) {
+                            //     var th = document.createElement('th');
+                            //     th.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                            //     th.style.whiteSpace = 'nowrap';
+                            //     tr.appendChild(th);
+                            // }
+
+                            // Append table to the container div<strong>May 2024 - Version V2.1</strong> - gage_control3.json was used <br> 
+                            document.getElementById('container').appendChild(table);
+                        });
+                </script>
                 <!-- Start Precip Div -->
                 <div id="loading_precip"
                     style="display: none; align-items: center; text-align: center; padding-bottom: 100px;">
@@ -293,23 +299,54 @@
 </html>
 
 <script>
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     // Create a URL object with the current page URL
+    //     const urlParams = new URLSearchParams(window.location.search);
+
+    //     // Update the Title
+    //     let title;
+    //     if (type === 'inc') {
+    //         title = `${office} Realtime Precip Incremental - ${basin}`;
+    //     } else if (type === 'cum') {
+    //         title = `${office} Realtime Precip Cumulative - ${basin}`;
+    //     }
+
+    //     if (title) {
+    //         document.title = title;
+    //         const titleSpan = document.querySelector('.titleLabel.title');
+    //         if (titleSpan) {
+    //             titleSpan.textContent = title;
+    //         }
+    //     }
+    // });
+</script>
+
+<script>
     document.addEventListener("DOMContentLoaded", function () {
         // Create a URL object with the current page URL
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Update the Title
+        // Update the River Reservoir
         let title;
-        if (type === 'inc') {
-            title = `${office} Realtime Precip Incremental - ${basin}`;
-        } else if (type === 'cum') {
-            title = `${office} Realtime Precip Cumulative - ${basin}`;
+        if (type === "inc") {
+            title = `${office} Realtime Precipitation`;
+        } else if (type === "cum") {
+            title = `${office} Realtime Precipitation`;
+        } else {
+            title = `${office} Realtime`;
         }
 
         if (title) {
             document.title = title;
             const titleSpan = document.querySelector('.titleLabel.title');
             if (titleSpan) {
-                titleSpan.textContent = title;
+                if (type === "inc") {
+                    titleSpan.textContent = `${basin} Incremental`;
+                } else if (type === "cum") {
+                    titleSpan.textContent = `${basin} Cumulative`;
+                } else {
+                    titleSpan.textContent = `${basin}`;
+                }
             }
         }
     });

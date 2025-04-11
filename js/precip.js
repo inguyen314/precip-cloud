@@ -8,19 +8,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     let setLookBackHours = null;
     let reportDiv = null;
 
-    let reportNumber = 1;
-
-    if (reportNumber === 1) {
-        console.log("***************************************************************");
-        console.log("********************* Setup to Run Precip *********************");
-        console.log("***************************************************************");
-        // Set the category and base URL for API calls
-        reportDiv = "precip";
-        setLocationCategory = "Basins";
-        setLocationGroupOwner = "Precip";
-        setTimeseriesGroup1 = "Precip";
-        setLookBackHours = subtractDaysFromDate(new Date(), 4);
-    }
+    console.log("***************************************************************");
+    console.log("********************* Setup to Run Precip *********************");
+    console.log("***************************************************************");
+    // Set the category and base URL for API calls
+    reportDiv = "precip";
+    setLocationCategory = "Basins";
+    setLocationGroupOwner = "Precip";
+    setTimeseriesGroup1 = "Precip";
+    setLookBackHours = subtractDaysFromDate(new Date(), 4);
 
     // Display the loading indicator for water quality alarm
     const loadingIndicator = document.getElementById(`loading_${reportDiv}`);
@@ -35,8 +31,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (cda === "internal") {
         setBaseUrl = `https://wm.${office.toLowerCase()}.ds.usace.army.mil/${office.toLowerCase()}-data/`;
     } else if (cda === "public") {
-        // setBaseUrl = `https://cwms-data.usace.army.mil/cwms-data/`;
-        setBaseUrl = `https://cwms.sec.usace.army.mil/cwms-data/`;
+        setBaseUrl = `https://cwms-data.usace.army.mil/cwms-data/`;
+        // setBaseUrl = `https://cwms.sec.usace.army.mil/cwms-data/`;
     }
     // console.log("setBaseUrl: ", setBaseUrl);
 
@@ -365,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                                             // Get and store the last min value for the specific tsid
                                             const cumValue = getCumValue(data, tsid);
-                                            console.log("cumValue: ", cumValue);
+                                            // console.log("cumValue: ", cumValue);
 
                                             // Get and store the last min value for the specific tsid
                                             const incValue = getIncValue(data, tsid);
@@ -562,7 +558,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     console.log('Filtered all locations where tsid is null successfully:', combinedData);
 
                     // Only call createTable if no valid data exists
-                    const table = createTablePrecip(combinedData, type, reportNumber);
+                    const table = createTablePrecip(combinedData, type);
 
                     // Append the table to the specified container
                     const container = document.getElementById(`table_container_${reportDiv}`);
@@ -739,20 +735,20 @@ function getCumValue(data, tsid) {
     let value66 = null; // 66 hours earlier
     let value72 = null; // 72 hours earlier
 
-    console.log("Data received:", data);
-    console.log("TSID:", tsid);
+    // console.log("Data received:", data);
+    // console.log("TSID:", tsid);
 
     // Iterate over the values array in reverse
     for (let i = data.values.length - 1; i >= 0; i--) {
         const [timestamp, value, qualityCode] = data.values[i];
 
-        console.log(`Processing index ${i}:`, { timestamp, value, qualityCode });
+        // console.log(`Processing index ${i}:`, { timestamp, value, qualityCode });
 
         // Ensure the value is not null
         if (value !== null) {
             // Convert timestamp to Date object
             let currentTimestamp = new Date(fixTimestamp(timestamp));
-            console.log("Parsed currentTimestamp:", currentTimestamp);
+            // console.log("Parsed currentTimestamp:", currentTimestamp);
 
             if (isNaN(currentTimestamp.getTime())) {
                 console.warn(`Invalid date parsed: ${timestamp}`);
@@ -761,13 +757,13 @@ function getCumValue(data, tsid) {
 
             // If value0 hasn't been set, assign it the latest non-null value
             if (!value0) {
-                value0 = { 
-                    tsid, 
-                    timestamp: timestamp.replace(/(\d{2})-(\d{2})-(\d{4}) (\d{2}:\d{2})/, "$3-$1-$2T$4:00Z"), 
-                    value: parseFloat(value), 
-                    qualityCode 
+                value0 = {
+                    tsid,
+                    timestamp: timestamp.replace(/(\d{2})-(\d{2})-(\d{4}) (\d{2}:\d{2})/, "$3-$1-$2T$4:00Z"),
+                    value: parseFloat(value),
+                    qualityCode
                 };
-                console.log("Assigned value0:", value0);
+                // console.log("Assigned value0:", value0);
             } else {
                 // Calculate target timestamps for each interval
                 const timeOffsets = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72];
@@ -780,13 +776,13 @@ function getCumValue(data, tsid) {
                     if (!timeValues[j]) {
                         const targetTime = new Date(value0.timestamp);
                         targetTime.setHours(targetTime.getHours() - timeOffsets[j]);
-                        console.log(`Checking for offset ${timeOffsets[j]} hours, targetTime:`, targetTime);
+                        // console.log(`Checking for offset ${timeOffsets[j]} hours, targetTime:`, targetTime);
 
                         // Allow slight variations due to potential parsing issues
                         const timeDiff = Math.abs(currentTimestamp - targetTime);
                         if (timeDiff < 3600000) { // Allow a 1-hour tolerance
                             timeValues[j] = { tsid, timestamp, value: parseFloat(value), qualityCode };
-                            console.log(`Assigned value for ${timeOffsets[j]} hours earlier:`, timeValues[j]);
+                            // console.log(`Assigned value for ${timeOffsets[j]} hours earlier:`, timeValues[j]);
                         }
                     }
                 }
@@ -797,17 +793,17 @@ function getCumValue(data, tsid) {
 
                 // Break loop if all values are found
                 if (timeValues.every(val => val)) {
-                    console.log("All required values found, breaking loop.");
+                    // console.log("All required values found, breaking loop.");
                     break;
                 }
             }
         }
     }
 
-    console.log("Final extracted values:", {
-        value0, value6, value12, value18, value24, value30,
-        value36, value42, value48, value54, value60, value66, value72
-    });
+    // console.log("Final extracted values:", {
+    //     value0, value6, value12, value18, value24, value30,
+    //     value36, value42, value48, value54, value60, value66, value72
+    // });
 
     // Calculate cumulative values (value0 - valueX)
     const cumulativeValues = {
@@ -818,7 +814,7 @@ function getCumValue(data, tsid) {
         cumulative72: value0 && value72 ? parseFloat(value0.value) - parseFloat(value72.value) : null,
     };
 
-    console.log("Cumulative Values:", cumulativeValues);
+    // console.log("Cumulative Values:", cumulativeValues);
 
     return {
         value0,
@@ -1081,7 +1077,7 @@ function hasLastValue(data) {
     }
 }
 
-function createTablePrecip(combinedData, type, reportNumber) {
+function createTablePrecip(combinedData, type) {
     const table = document.createElement('table');
     table.setAttribute('id', 'gage_data');
 
@@ -1102,6 +1098,9 @@ function createTablePrecip(combinedData, type, reportNumber) {
         th.style.height = '50px';
         th.style.backgroundColor = 'darkblue';
         th.style.color = 'white'; // Added for better visibility
+        th.style.whiteSpace = 'nowrap';
+        th.style.paddingRight = '15px'; // Added for spacing
+        th.style.paddingLeft = '15px'; // Added for spacing
         headerRow.appendChild(th);
     });
     table.appendChild(headerRow);
@@ -1136,7 +1135,7 @@ function createTablePrecip(combinedData, type, reportNumber) {
             linkElement.href = link;
             linkElement.target = '_blank';
             linkElement.textContent = (location['location-id']).split('-')[0];
-            locationCell.style.whiteSpace = 'nowrap'; 
+            locationCell.style.whiteSpace = 'nowrap';
             locationCell.appendChild(linkElement);
             row.appendChild(locationCell);
 
@@ -1249,5 +1248,5 @@ function getStationForLocation(locationId, riverMileObject) {
 function fixTimestamp(timestamp) {
     // Convert "MM-DD-YYYY HH:mm" → "YYYY-MM-DDTHH:mm:ssZ"
     let [month, day, year, time] = timestamp.split(/[- ]/);
-    return `${year}-${month}-${day}T${time}:00Z`; 
+    return `${year}-${month}-${day}T${time}:00Z`;
 }
